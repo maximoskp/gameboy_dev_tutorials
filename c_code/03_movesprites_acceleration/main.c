@@ -4,30 +4,30 @@
 
 // optimised to skip delay and read motion based on a counter
 
-void main(){
-    UINT8 wall_right = SCREENWIDTH;
-    UINT8 wall_left = 8;
-    UINT8 wall_up = 16;
-    UINT8 wall_down = SCREENHEIGHT+(UINT8)8;
-    UINT8 currentspriteindex = 0;
+void main(void){
+    uint8_t wall_right = SCREENWIDTH;
+    uint8_t wall_left = 8;
+    uint8_t wall_up = 16;
+    uint8_t wall_down = SCREENHEIGHT+(uint8_t)8;
+    uint8_t currentspriteindex = 0;
     // time management
-    UINT16 current_frame = 0;
-    // UINT16 frame_to_read_joypad = 10000;
-    UINT16 frame_to_update_motion = 500;
+    uint16_t current_frame = 0;
+    // uint16_t frame_to_read_joypad = 10000;
+    uint16_t frame_to_update_motion = 500;
     // motion management
-    INT8 max_velocity = 64; // divided by divisor
+    int8_t max_velocity = 64; // divided by divisor
     // velocity divisor
-    INT8 position_divisor = 16;
-    UINT16 expanded_x_position = position_divisor*88;
-    UINT16 expanded_y_position = position_divisor*78;
-    UINT8 actual_x_position = expanded_x_position/position_divisor;
-    UINT8 actual_y_position = expanded_y_position/position_divisor;
-    INT8 x_v = 0;
-    INT8 y_v = 0;
-    INT8 x_a = 0;
-    INT8 y_a = 0;
-    INT8 vertical_motion = 0;
-    INT8 horizontal_motion = 0;
+    int8_t position_divisor = 16;
+    uint16_t expanded_x_position = position_divisor*88;
+    uint16_t expanded_y_position = position_divisor*78;
+    uint8_t actual_x_position = expanded_x_position/position_divisor;
+    uint8_t actual_y_position = expanded_y_position/position_divisor;
+    int8_t x_v = 0;
+    int8_t y_v = 0;
+    int8_t x_a = 0;
+    int8_t y_a = 0;
+    int8_t vertical_motion = 0;
+    int8_t horizontal_motion = 0;
 
     set_sprite_data(0, 2, Smiler);
     set_sprite_tile(0, 0);
@@ -36,7 +36,7 @@ void main(){
 
     while(1){
         if(++current_frame >= frame_to_update_motion){
-            UINT8 joypad_value = joypad();
+            uint8_t joypad_value = joypad();
             current_frame = 0;
             x_a = -1*( (J_LEFT & joypad_value)>>1 ) + (J_RIGHT & joypad_value);
             y_a = -1*( (J_UP & joypad_value)>>2 ) + ( (J_DOWN & joypad_value)>>3 );

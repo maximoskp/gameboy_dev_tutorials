@@ -4,15 +4,15 @@
 
 // optimised to skip delay and read motion based on a counter
 
-void main(){
-    UINT8 currentspriteindex = 0;
+void main(void){
+    uint8_t currentspriteindex = 0;
     // time management
-    UINT16 current_frame = 0;
+    uint16_t current_frame = 0;
     // UINT16 frame_to_read_joypad = 10000;
-    UINT16 frame_to_update_motion = 1000;
+    uint16_t frame_to_update_motion = 1000;
     // motion management
-    INT8 vertical_motion = 0;
-    INT8 horizontal_motion = 0;
+    uint8_t vertical_motion = 0;
+    uint8_t horizontal_motion = 0;
 
     set_sprite_data(0, 2, Smiler);
     set_sprite_tile(0, 0);
@@ -21,7 +21,7 @@ void main(){
 
     while(1){
         if(++current_frame >= frame_to_update_motion){
-            UINT8 joypad_value = joypad();
+            uint8_t joypad_value = joypad();
             current_frame = 0;
             horizontal_motion = -1*( (J_LEFT & joypad_value)>>1 ) + (J_RIGHT & joypad_value);
             vertical_motion = -1*( (J_UP & joypad_value)>>2 ) + ( (J_DOWN & joypad_value)>>3 );

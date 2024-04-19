@@ -1,9 +1,9 @@
 ;--------------------------------------------------------
-; File Created by SDCC : free open source ANSI-C Compiler
-; Version 4.0.3 #11868 (Mac OS X x86_64)
+; File Created by SDCC : free open source ISO C Compiler 
+; Version 4.3.2 #14228 (Mac OS X x86_64)
 ;--------------------------------------------------------
 	.module main
-	.optsdcc -mgbz80
+	.optsdcc -msm83
 	
 ;--------------------------------------------------------
 ; Public variables in this module
@@ -19,6 +19,10 @@
 ; ram data
 ;--------------------------------------------------------
 	.area _DATA
+;--------------------------------------------------------
+; ram data
+;--------------------------------------------------------
+	.area _INITIALIZED
 _Smiler::
 	.ds 32
 ;--------------------------------------------------------
@@ -32,17 +36,6 @@ _Smiler::
 	.area _GSINIT
 	.area _GSFINAL
 	.area _GSINIT
-;SmilerSprites.c:26: unsigned char Smiler[] =
-	ld	bc, #_Smiler+0
-	ld	e, c
-	ld	d, b
-	call	__initrleblock
-	.db	#32
-	.db	#0x7E, #0x7E, #0xFF, #0x81, #0xFF, #0xA5, #0xFF, #0x81
-	.db	#0xFF, #0x81, #0xFF, #0xBD, #0xFF, #0x81, #0x7E, #0x7E
-	.db	#0x7E, #0x7E, #0xFF, #0x81, #0xFF, #0xA5, #0xFF, #0x81
-	.db	#0xFF, #0xA5, #0xFF, #0x99, #0xFF, #0x81, #0x7E, #0x7E
-	.db	#0
 ;--------------------------------------------------------
 ; Home
 ;--------------------------------------------------------
@@ -52,150 +45,169 @@ _Smiler::
 ; code
 ;--------------------------------------------------------
 	.area _CODE
-;main.c:7: void main(){
+;main.c:7: void main(void){
 ;	---------------------------------
 ; Function main
 ; ---------------------------------
 _main::
 	add	sp, #-3
-;main.c:10: UINT16 current_frame = 0;
-	xor	a, a
-	ldhl	sp,	#1
-	ld	(hl+), a
-	ld	(hl), a
+;main.c:10: uint16_t current_frame = 0;
+	ld	bc, #0x0000
 ;main.c:17: set_sprite_data(0, 2, Smiler);
-	ld	hl, #_Smiler
+	ld	de, #_Smiler
+	push	de
+	ld	hl, #0x200
 	push	hl
-	ld	a, #0x02
-	push	af
-	inc	sp
-	xor	a, a
-	push	af
-	inc	sp
 	call	_set_sprite_data
 	add	sp, #4
-;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:610: shadow_OAM[nb].tile=tile; 
-	ld	hl, #(_shadow_OAM + 0x0002)
+;/Users/max/gbdk/include/gb/gb.h:1804: shadow_OAM[nb].tile=tile;
+	ld	hl, #(_shadow_OAM + 2)
 	ld	(hl), #0x00
-;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:652: OAM_item_t * itm = &shadow_OAM[nb];
+;/Users/max/gbdk/include/gb/gb.h:1877: OAM_item_t * itm = &shadow_OAM[nb];
 	ld	hl, #_shadow_OAM
-;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:653: itm->y=y, itm->x=x; 
+;/Users/max/gbdk/include/gb/gb.h:1878: itm->y=y, itm->x=x;
 	ld	a, #0x4e
 	ld	(hl+), a
 	ld	(hl), #0x58
 ;main.c:20: SHOW_SPRITES;
-	ldh	a, (_LCDC_REG+0)
+	ldh	a, (_LCDC_REG + 0)
 	or	a, #0x02
-	ldh	(_LCDC_REG+0),a
+	ldh	(_LCDC_REG + 0), a
 ;main.c:22: while(1){
 00104$:
 ;main.c:23: if(++current_frame >= frame_to_update_motion){
-	ldhl	sp,	#1
-	inc	(hl)
-	jr	NZ, 00121$
-	inc	hl
-	inc	(hl)
-00121$:
-	ldhl	sp,	#1
-	ld	a, (hl)
+	inc	bc
+	ld	a, c
 	sub	a, #0xe8
-	inc	hl
-	ld	a, (hl)
+	ld	a, b
 	sbc	a, #0x03
 	jr	C, 00104$
-;main.c:24: UINT8 joypad_value = joypad();
+;main.c:24: uint8_t joypad_value = joypad();
 	call	_joypad
-	ldhl	sp,	#0
-	ld	(hl), e
+	ldhl	sp,	#2
+	ld	(hl), a
 ;main.c:25: current_frame = 0;
-	xor	a, a
-	inc	hl
-	ld	(hl+), a
+	ld	bc, #0x0000
 ;main.c:26: horizontal_motion = -1*( (J_LEFT & joypad_value)>>1 ) + (J_RIGHT & joypad_value);
-	ld	(hl-), a
+	ldhl	sp,	#2
+	ld	a, (hl-)
 	dec	hl
-	ld	c, (hl)
-	ld	a, c
+	ld	(hl+), a
+	xor	a, a
+	ld	(hl-), a
+	ld	a, (hl+)
+	inc	hl
 	and	a, #0x02
 	ld	e, a
 	ld	d, #0x00
 	srl	d
 	rr	e
-	ld	a,e
+	ld	a, e
 	add	a, a
-	add	a, e
 	add	a, a
-	add	a, e
 	add	a, a
-	add	a, e
 	add	a, a
-	add	a, e
 	add	a, a
-	add	a, e
 	add	a, a
-	add	a, e
 	add	a, a
-	add	a, e
+	add	a, a
+	sub	a, e
 	push	af
-	ldhl	sp,	#2
 	ld	a, (hl)
 	and	a, #0x01
 	ld	e, a
 	pop	af
 	add	a, e
-	ld	(hl), a
 ;main.c:27: vertical_motion = -1*( (J_UP & joypad_value)>>2 ) + ( (J_DOWN & joypad_value)>>3 );
-	ld	a, c
+	ld	(hl-), a
+	dec	hl
+	ld	a, (hl)
 	and	a, #0x04
+	ld	e, a
+	ld	d, #0x00
+	srl	d
+	rr	e
+	srl	d
+	rr	e
+	ld	a,e
+	add	a, a
+	add	a, a
+	add	a, a
+	add	a, a
+	add	a, a
+	add	a, a
+	add	a, a
+	add	a, a
+	sub	a, e
 	ld	l, a
-	ld	h, #0x00
-	srl	h
-	rr	l
-	srl	h
-	rr	l
-	ld	e, l
-	add	hl, hl
-	add	hl, de
-	add	hl, hl
-	add	hl, de
-	add	hl, hl
-	add	hl, de
-	add	hl, hl
-	add	hl, de
-	add	hl, hl
-	add	hl, de
-	add	hl, hl
-	add	hl, de
-	add	hl, hl
-	add	hl, de
-	ld	a, c
+;	spillPairReg hl
+;	spillPairReg hl
+	push	hl
+	ldhl	sp,	#2
+	ld	a, (hl)
+	pop	hl
 	and	a, #0x08
-	ld	c, a
-	ld	b, #0x00
-	srl	b
-	rr	c
-	srl	b
-	rr	c
-	srl	b
-	rr	c
-	ld	a, c
+	ld	e, a
+	ld	d, #0x00
+	srl	d
+	rr	e
+	srl	d
+	rr	e
+	srl	d
+	rr	e
+	ld	a, e
 	add	a, l
 	ld	e, a
-;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:659: OAM_item_t * itm = &shadow_OAM[nb];
-	ld	bc, #_shadow_OAM+0
-;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:660: itm->y+=y, itm->x+=x; 
-	ld	a, (bc)
+;/Users/max/gbdk/include/gb/gb.h:1893: OAM_item_t * itm = &shadow_OAM[nb];
+	ld	hl, #_shadow_OAM
+;/Users/max/gbdk/include/gb/gb.h:1894: itm->y+=y, itm->x+=x;
+	ld	a, (hl)
 	add	a, e
-	ld	(bc), a
-	inc	bc
-	ld	a, (bc)
-	ldhl	sp,	#0
+	ld	(hl+), a
+	ld	e, l
+	ld	d, h
+	ld	a, (de)
+	ldhl	sp,	#2
 	add	a, (hl)
-	ld	(bc), a
+	ld	(de), a
 ;main.c:29: scroll_sprite(0,horizontal_motion,vertical_motion);
-	jp	00104$
+	jr	00104$
 ;main.c:32: }
 	add	sp, #3
 	ret
 	.area _CODE
+	.area _INITIALIZER
+__xinit__Smiler:
+	.db #0x7e	; 126
+	.db #0x7e	; 126
+	.db #0xff	; 255
+	.db #0x81	; 129
+	.db #0xff	; 255
+	.db #0xa5	; 165
+	.db #0xff	; 255
+	.db #0x81	; 129
+	.db #0xff	; 255
+	.db #0x81	; 129
+	.db #0xff	; 255
+	.db #0xbd	; 189
+	.db #0xff	; 255
+	.db #0x81	; 129
+	.db #0x7e	; 126
+	.db #0x7e	; 126
+	.db #0x7e	; 126
+	.db #0x7e	; 126
+	.db #0xff	; 255
+	.db #0x81	; 129
+	.db #0xff	; 255
+	.db #0xa5	; 165
+	.db #0xff	; 255
+	.db #0x81	; 129
+	.db #0xff	; 255
+	.db #0xa5	; 165
+	.db #0xff	; 255
+	.db #0x99	; 153
+	.db #0xff	; 255
+	.db #0x81	; 129
+	.db #0x7e	; 126
+	.db #0x7e	; 126
 	.area _CABS (ABS)

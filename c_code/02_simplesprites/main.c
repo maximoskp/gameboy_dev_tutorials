@@ -1,9 +1,11 @@
 #include <gb/gb.h>
 #include <stdio.h>
+#include <stdint.h>
 #include "SmilerSprites.c"
 
-void main(){
-    UINT8 currentspriteindex = 0;
+void main(void){
+    // UINT8 currentspriteindex = 0;
+    uint8_t currentspriteindex = 0;
 
     set_sprite_data(0, 2, Smiler);
     set_sprite_tile(0, 0);

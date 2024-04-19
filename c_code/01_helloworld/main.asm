@@ -1,9 +1,9 @@
 ;--------------------------------------------------------
-; File Created by SDCC : free open source ANSI-C Compiler
-; Version 4.0.3 #11868 (Mac OS X x86_64)
+; File Created by SDCC : free open source ISO C Compiler 
+; Version 4.3.2 #14228 (Mac OS X x86_64)
 ;--------------------------------------------------------
 	.module main
-	.optsdcc -mgbz80
+	.optsdcc -msm83
 	
 ;--------------------------------------------------------
 ; Public variables in this module
@@ -17,6 +17,10 @@
 ; ram data
 ;--------------------------------------------------------
 	.area _DATA
+;--------------------------------------------------------
+; ram data
+;--------------------------------------------------------
+	.area _INITIALIZED
 ;--------------------------------------------------------
 ; absolute external ram data
 ;--------------------------------------------------------
@@ -37,20 +41,21 @@
 ; code
 ;--------------------------------------------------------
 	.area _CODE
-;main.c:4: void main(){
+;main.c:4: void main(void){
 ;	---------------------------------
 ; Function main
 ; ---------------------------------
 _main::
 ;main.c:5: printf("HELLO WORLD");
-	ld	hl, #___str_0
-	push	hl
+	ld	de, #___str_0
+	push	de
 	call	_printf
-	add	sp, #2
+	pop	hl
 ;main.c:6: }
 	ret
 ___str_0:
 	.ascii "HELLO WORLD"
 	.db 0x00
 	.area _CODE
+	.area _INITIALIZER
 	.area _CABS (ABS)

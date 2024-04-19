@@ -1,9 +1,9 @@
                                       1 ;--------------------------------------------------------
-                                      2 ; File Created by SDCC : free open source ANSI-C Compiler
-                                      3 ; Version 4.0.3 #11868 (Mac OS X x86_64)
+                                      2 ; File Created by SDCC : free open source ISO C Compiler 
+                                      3 ; Version 4.3.2 #14228 (Mac OS X x86_64)
                                       4 ;--------------------------------------------------------
                                       5 	.module main
-                                      6 	.optsdcc -mgbz80
+                                      6 	.optsdcc -msm83
                                       7 	
                                       8 ;--------------------------------------------------------
                                       9 ; Public variables in this module
@@ -19,420 +19,412 @@
                                      19 ; ram data
                                      20 ;--------------------------------------------------------
                                      21 	.area _DATA
-      000000                         22 _Smiler::
-      000000                         23 	.ds 32
+                                     22 ;--------------------------------------------------------
+                                     23 ; ram data
                                      24 ;--------------------------------------------------------
-                                     25 ; absolute external ram data
-                                     26 ;--------------------------------------------------------
-                                     27 	.area _DABS (ABS)
+                                     25 	.area _INITIALIZED
+      000000                         26 _Smiler::
+      000000                         27 	.ds 32
                                      28 ;--------------------------------------------------------
-                                     29 ; global & static initialisations
+                                     29 ; absolute external ram data
                                      30 ;--------------------------------------------------------
-                                     31 	.area _HOME
-                                     32 	.area _GSINIT
-                                     33 	.area _GSFINAL
-                                     34 	.area _GSINIT
-                                     35 ;SmilerSprites.c:26: unsigned char Smiler[] =
-      000000 01r00r00                36 	ld	bc, #_Smiler+0
-      000003 59                      37 	ld	e, c
-      000004 50                      38 	ld	d, b
-      000005 CDr00r00                39 	call	__initrleblock
-      000008 20                      40 	.db	#32
-      000009 7E 7E FF 81 FF A5 FF    41 	.db	#0x7E, #0x7E, #0xFF, #0x81, #0xFF, #0xA5, #0xFF, #0x81
-             81
-      000011 FF 81 FF BD FF 81 7E    42 	.db	#0xFF, #0x81, #0xFF, #0xBD, #0xFF, #0x81, #0x7E, #0x7E
-             7E
-      000019 7E 7E FF 81 FF A5 FF    43 	.db	#0x7E, #0x7E, #0xFF, #0x81, #0xFF, #0xA5, #0xFF, #0x81
-             81
-      000021 FF A5 FF 99 FF 81 7E    44 	.db	#0xFF, #0xA5, #0xFF, #0x99, #0xFF, #0x81, #0x7E, #0x7E
-             7E
-      000029 00                      45 	.db	#0
+                                     31 	.area _DABS (ABS)
+                                     32 ;--------------------------------------------------------
+                                     33 ; global & static initialisations
+                                     34 ;--------------------------------------------------------
+                                     35 	.area _HOME
+                                     36 	.area _GSINIT
+                                     37 	.area _GSFINAL
+                                     38 	.area _GSINIT
+                                     39 ;--------------------------------------------------------
+                                     40 ; Home
+                                     41 ;--------------------------------------------------------
+                                     42 	.area _HOME
+                                     43 	.area _HOME
+                                     44 ;--------------------------------------------------------
+                                     45 ; code
                                      46 ;--------------------------------------------------------
-                                     47 ; Home
-                                     48 ;--------------------------------------------------------
-                                     49 	.area _HOME
-                                     50 	.area _HOME
-                                     51 ;--------------------------------------------------------
-                                     52 ; code
-                                     53 ;--------------------------------------------------------
-                                     54 	.area _CODE
-                                     55 ;main.c:7: void main(){
-                                     56 ;	---------------------------------
-                                     57 ; Function main
-                                     58 ; ---------------------------------
-      000000                         59 _main::
-      000000 E8 F3                   60 	add	sp, #-13
-                                     61 ;main.c:14: UINT16 current_frame = 0;
-      000002 AF                      62 	xor	a, a
-      000003 F8 05                   63 	ldhl	sp,	#5
-      000005 22                      64 	ld	(hl+), a
-                                     65 ;main.c:21: UINT16 expanded_x_position = position_divisor*88;
-      000006 22                      66 	ld	(hl+), a
-      000007 3E 80                   67 	ld	a, #0x80
-      000009 22                      68 	ld	(hl+), a
-                                     69 ;main.c:22: UINT16 expanded_y_position = position_divisor*78;
-      00000A 3E 05                   70 	ld	a, #0x05
-      00000C 22                      71 	ld	(hl+), a
-      00000D 3E E0                   72 	ld	a, #0xe0
-      00000F 22                      73 	ld	(hl+), a
-      000010 36 04                   74 	ld	(hl), #0x04
-                                     75 ;main.c:25: INT8 x_v = 0;
-      000012 AF                      76 	xor	a, a
-      000013 23                      77 	inc	hl
-      000014 77                      78 	ld	(hl), a
-                                     79 ;main.c:26: INT8 y_v = 0;
-      000015 AF                      80 	xor	a, a
-      000016 23                      81 	inc	hl
-      000017 77                      82 	ld	(hl), a
-                                     83 ;main.c:32: set_sprite_data(0, 2, Smiler);
-      000018 21r00r00                84 	ld	hl, #_Smiler
-      00001B E5                      85 	push	hl
-      00001C 3E 02                   86 	ld	a, #0x02
-      00001E F5                      87 	push	af
-      00001F 33                      88 	inc	sp
-      000020 AF                      89 	xor	a, a
-      000021 F5                      90 	push	af
-      000022 33                      91 	inc	sp
-      000023 CDr00r00                92 	call	_set_sprite_data
-      000026 E8 04                   93 	add	sp, #4
-                                     94 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:610: shadow_OAM[nb].tile=tile; 
-      000028 21r02r00                95 	ld	hl, #(_shadow_OAM + 0x0002)
-      00002B 36 00                   96 	ld	(hl), #0x00
-                                     97 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:652: OAM_item_t * itm = &shadow_OAM[nb];
-      00002D 21r00r00                98 	ld	hl, #_shadow_OAM
-                                     99 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:653: itm->y=y, itm->x=x; 
-      000030 3E 4E                  100 	ld	a, #0x4e
-      000032 22                     101 	ld	(hl+), a
-      000033 36 58                  102 	ld	(hl), #0x58
-                                    103 ;main.c:35: SHOW_SPRITES;
-      000035 F0r00                  104 	ldh	a, (_LCDC_REG+0)
-      000037 F6 02                  105 	or	a, #0x02
-      000039 E0r00                  106 	ldh	(_LCDC_REG+0),a
-                                    107 ;main.c:37: while(1){
-      00003B                        108 00118$:
-                                    109 ;main.c:38: if(++current_frame >= frame_to_update_motion){
-      00003B F8 05                  110 	ldhl	sp,	#5
-      00003D 34                     111 	inc	(hl)
-      00003E 20 02                  112 	jr	NZ, 00179$
-      000040 23                     113 	inc	hl
-      000041 34                     114 	inc	(hl)
-      000042                        115 00179$:
-      000042 F8 05                  116 	ldhl	sp,	#5
-      000044 7E                     117 	ld	a, (hl)
-      000045 D6 F4                  118 	sub	a, #0xf4
-      000047 23                     119 	inc	hl
-      000048 7E                     120 	ld	a, (hl)
-      000049 DE 01                  121 	sbc	a, #0x01
-      00004B 38 EE                  122 	jr	C, 00118$
-                                    123 ;main.c:39: UINT8 joypad_value = joypad();
-      00004D CDr00r00               124 	call	_joypad
-      000050 F8 00                  125 	ldhl	sp,	#0
-      000052 73                     126 	ld	(hl), e
-                                    127 ;main.c:40: current_frame = 0;
-      000053 AF                     128 	xor	a, a
-      000054 F8 05                  129 	ldhl	sp,	#5
-      000056 22                     130 	ld	(hl+), a
-      000057 77                     131 	ld	(hl), a
-                                    132 ;main.c:41: x_a = -1*( (J_LEFT & joypad_value)>>1 ) + (J_RIGHT & joypad_value);
-      000058 F8 00                  133 	ldhl	sp,	#0
-      00005A 2A                     134 	ld	a, (hl+)
-      00005B 77                     135 	ld	(hl), a
-      00005C AF                     136 	xor	a, a
-      00005D 23                     137 	inc	hl
-      00005E 32                     138 	ld	(hl-), a
-      00005F 7E                     139 	ld	a, (hl)
-      000060 E6 02                  140 	and	a, #0x02
-      000062 23                     141 	inc	hl
-      000063 23                     142 	inc	hl
-      000064 22                     143 	ld	(hl+), a
-      000065 3E 00                  144 	ld	a, #0x00
-      000067 32                     145 	ld	(hl-), a
-      000068 7E                     146 	ld	a, (hl)
-      000069 22                     147 	ld	(hl+), a
-      00006A 7E                     148 	ld	a, (hl)
-      00006B 77                     149 	ld	(hl), a
-      00006C CB 3E                  150 	srl	(hl)
-      00006E 2B                     151 	dec	hl
-      00006F CB 1E                  152 	rr	(hl)
-      000071 7E                     153 	ld	a, (hl)
-      000072 4F                     154 	ld	c, a
-      000073 87                     155 	add	a, a
-      000074 81                     156 	add	a, c
-      000075 87                     157 	add	a, a
-      000076 81                     158 	add	a, c
-      000077 87                     159 	add	a, a
-      000078 81                     160 	add	a, c
-      000079 87                     161 	add	a, a
-      00007A 81                     162 	add	a, c
-      00007B 87                     163 	add	a, a
-      00007C 81                     164 	add	a, c
-      00007D 87                     165 	add	a, a
-      00007E 81                     166 	add	a, c
-      00007F 87                     167 	add	a, a
-      000080 81                     168 	add	a, c
-      000081 4F                     169 	ld	c, a
-      000082 F8 00                  170 	ldhl	sp,	#0
-      000084 7E                     171 	ld	a, (hl)
-      000085 E6 01                  172 	and	a, #0x01
-      000087 81                     173 	add	a, c
-      000088 4F                     174 	ld	c, a
-                                    175 ;main.c:42: y_a = -1*( (J_UP & joypad_value)>>2 ) + ( (J_DOWN & joypad_value)>>3 );
-      000089 23                     176 	inc	hl
-      00008A 7E                     177 	ld	a, (hl)
-      00008B E6 04                  178 	and	a, #0x04
-      00008D 5F                     179 	ld	e, a
-      00008E 06 00                  180 	ld	b, #0x00
-      000090 CB 38                  181 	srl	b
-      000092 CB 1B                  182 	rr	e
-      000094 CB 38                  183 	srl	b
-      000096 CB 1B                  184 	rr	e
-      000098 7B                     185 	ld	a,e
-      000099 87                     186 	add	a, a
-      00009A 83                     187 	add	a, e
-      00009B 87                     188 	add	a, a
-      00009C 83                     189 	add	a, e
-      00009D 87                     190 	add	a, a
-      00009E 83                     191 	add	a, e
-      00009F 87                     192 	add	a, a
-      0000A0 83                     193 	add	a, e
-      0000A1 87                     194 	add	a, a
-      0000A2 83                     195 	add	a, e
-      0000A3 87                     196 	add	a, a
-      0000A4 83                     197 	add	a, e
-      0000A5 87                     198 	add	a, a
-      0000A6 83                     199 	add	a, e
-      0000A7 47                     200 	ld	b, a
-      0000A8 F8 01                  201 	ldhl	sp,	#1
-      0000AA 7E                     202 	ld	a, (hl)
-      0000AB E6 08                  203 	and	a, #0x08
-      0000AD 5F                     204 	ld	e, a
-      0000AE 16 00                  205 	ld	d, #0x00
-      0000B0 CB 3A                  206 	srl	d
-      0000B2 CB 1B                  207 	rr	e
-      0000B4 CB 3A                  208 	srl	d
-      0000B6 CB 1B                  209 	rr	e
-      0000B8 CB 3A                  210 	srl	d
-      0000BA CB 1B                  211 	rr	e
-      0000BC 7B                     212 	ld	a, e
-      0000BD 80                     213 	add	a, b
-      0000BE F8 04                  214 	ldhl	sp,	#4
-      0000C0 77                     215 	ld	(hl), a
-                                    216 ;main.c:44: x_v += x_a;
-      0000C1 F8 0B                  217 	ldhl	sp,	#11
-      0000C3 7E                     218 	ld	a, (hl)
-      0000C4 81                     219 	add	a, c
-      0000C5 77                     220 	ld	(hl), a
-                                    221 ;main.c:45: if(x_v > max_velocity){
-      0000C6 5E                     222 	ld	e, (hl)
-      0000C7 3E 40                  223 	ld	a,#0x40
-      0000C9 57                     224 	ld	d,a
-      0000CA 96                     225 	sub	a, (hl)
-      0000CB CB 7B                  226 	bit	7, e
-      0000CD 28 07                  227 	jr	Z, 00180$
-      0000CF CB 7A                  228 	bit	7, d
-      0000D1 20 08                  229 	jr	NZ, 00181$
-      0000D3 BF                     230 	cp	a, a
-      0000D4 18 05                  231 	jr	00181$
-      0000D6                        232 00180$:
-      0000D6 CB 7A                  233 	bit	7, d
-      0000D8 28 01                  234 	jr	Z, 00181$
-      0000DA 37                     235 	scf
-      0000DB                        236 00181$:
-      0000DB 30 04                  237 	jr	NC, 00102$
-                                    238 ;main.c:46: x_v = max_velocity;
-      0000DD F8 0B                  239 	ldhl	sp,	#11
-      0000DF 36 40                  240 	ld	(hl), #0x40
-      0000E1                        241 00102$:
-                                    242 ;main.c:48: if(x_v < -max_velocity){
-      0000E1 F8 0B                  243 	ldhl	sp,	#11
-      0000E3 7E                     244 	ld	a, (hl)
-      0000E4 4F                     245 	ld	c, a
-      0000E5 17                     246 	rla
-      0000E6 9F                     247 	sbc	a, a
-      0000E7 47                     248 	ld	b, a
-      0000E8 79                     249 	ld	a, c
-      0000E9 D6 C0                  250 	sub	a, #0xc0
-      0000EB 78                     251 	ld	a, b
-      0000EC 17                     252 	rla
-      0000ED 3F                     253 	ccf
-      0000EE 1F                     254 	rra
-      0000EF DE 7F                  255 	sbc	a, #0x7f
-      0000F1 30 02                  256 	jr	NC, 00104$
-                                    257 ;main.c:49: x_v = -max_velocity;
-      0000F3 36 C0                  258 	ld	(hl), #0xc0
-      0000F5                        259 00104$:
-                                    260 ;main.c:51: y_v += y_a;
-      0000F5 F8 0C                  261 	ldhl	sp,	#12
-      0000F7 7E                     262 	ld	a, (hl)
-      0000F8 F8 04                  263 	ldhl	sp,	#4
-      0000FA 86                     264 	add	a, (hl)
-      0000FB F8 0C                  265 	ldhl	sp,	#12
-      0000FD 77                     266 	ld	(hl), a
-                                    267 ;main.c:52: if(y_v > max_velocity){
-      0000FE 5E                     268 	ld	e, (hl)
-      0000FF 3E 40                  269 	ld	a,#0x40
-      000101 57                     270 	ld	d,a
-      000102 96                     271 	sub	a, (hl)
-      000103 CB 7B                  272 	bit	7, e
-      000105 28 07                  273 	jr	Z, 00182$
-      000107 CB 7A                  274 	bit	7, d
-      000109 20 08                  275 	jr	NZ, 00183$
-      00010B BF                     276 	cp	a, a
-      00010C 18 05                  277 	jr	00183$
-      00010E                        278 00182$:
-      00010E CB 7A                  279 	bit	7, d
-      000110 28 01                  280 	jr	Z, 00183$
-      000112 37                     281 	scf
-      000113                        282 00183$:
-      000113 30 04                  283 	jr	NC, 00106$
-                                    284 ;main.c:53: y_v = max_velocity;
-      000115 F8 0C                  285 	ldhl	sp,	#12
-      000117 36 40                  286 	ld	(hl), #0x40
-      000119                        287 00106$:
-                                    288 ;main.c:55: if(y_v < -max_velocity){
-      000119 F8 0C                  289 	ldhl	sp,	#12
-      00011B 7E                     290 	ld	a, (hl)
-      00011C 4F                     291 	ld	c, a
-      00011D 17                     292 	rla
-      00011E 9F                     293 	sbc	a, a
-      00011F 47                     294 	ld	b, a
-      000120 79                     295 	ld	a, c
-      000121 D6 C0                  296 	sub	a, #0xc0
-      000123 78                     297 	ld	a, b
-      000124 17                     298 	rla
-      000125 3F                     299 	ccf
-      000126 1F                     300 	rra
-      000127 DE 7F                  301 	sbc	a, #0x7f
-      000129 30 02                  302 	jr	NC, 00108$
-                                    303 ;main.c:56: y_v = -max_velocity;
-      00012B 36 C0                  304 	ld	(hl), #0xc0
-      00012D                        305 00108$:
-                                    306 ;main.c:58: expanded_x_position += x_v;
-      00012D F8 0B                  307 	ldhl	sp,	#11
-      00012F 7E                     308 	ld	a, (hl)
-      000130 4F                     309 	ld	c, a
-      000131 17                     310 	rla
-      000132 9F                     311 	sbc	a, a
-      000133 47                     312 	ld	b, a
-      000134 F8 07                  313 	ldhl	sp,	#7
-      000136 2A                     314 	ld	a, (hl+)
-      000137 66                     315 	ld	h, (hl)
-      000138 6F                     316 	ld	l, a
-      000139 09                     317 	add	hl, bc
-      00013A 7D                     318 	ld	a, l
-      00013B 54                     319 	ld	d, h
-      00013C F8 07                  320 	ldhl	sp,	#7
-      00013E 22                     321 	ld	(hl+), a
-      00013F 72                     322 	ld	(hl), d
-                                    323 ;main.c:59: actual_x_position = expanded_x_position/position_divisor;
-      000140 21 10 00               324 	ld	hl, #0x0010
-      000143 E5                     325 	push	hl
-      000144 F8 09                  326 	ldhl	sp,	#9
-      000146 2A                     327 	ld	a, (hl+)
-      000147 66                     328 	ld	h, (hl)
-      000148 6F                     329 	ld	l, a
-      000149 E5                     330 	push	hl
-      00014A CDr00r00               331 	call	__divuint
-      00014D E8 04                  332 	add	sp, #4
-      00014F F8 03                  333 	ldhl	sp,	#3
-      000151 73                     334 	ld	(hl), e
-                                    335 ;main.c:60: expanded_y_position += y_v;
-      000152 F8 0C                  336 	ldhl	sp,	#12
-      000154 7E                     337 	ld	a, (hl)
-      000155 4F                     338 	ld	c, a
-      000156 17                     339 	rla
-      000157 9F                     340 	sbc	a, a
-      000158 47                     341 	ld	b, a
-      000159 F8 09                  342 	ldhl	sp,	#9
-      00015B 2A                     343 	ld	a, (hl+)
-      00015C 66                     344 	ld	h, (hl)
-      00015D 6F                     345 	ld	l, a
-      00015E 09                     346 	add	hl, bc
-      00015F 7D                     347 	ld	a, l
-      000160 54                     348 	ld	d, h
-      000161 F8 09                  349 	ldhl	sp,	#9
-      000163 22                     350 	ld	(hl+), a
-      000164 72                     351 	ld	(hl), d
-                                    352 ;main.c:61: actual_y_position = expanded_y_position/position_divisor;
-      000165 21 10 00               353 	ld	hl, #0x0010
-      000168 E5                     354 	push	hl
-      000169 F8 0B                  355 	ldhl	sp,	#11
-      00016B 2A                     356 	ld	a, (hl+)
-      00016C 66                     357 	ld	h, (hl)
-      00016D 6F                     358 	ld	l, a
-      00016E E5                     359 	push	hl
-      00016F CDr00r00               360 	call	__divuint
-      000172 E8 04                  361 	add	sp, #4
-      000174 F8 04                  362 	ldhl	sp,	#4
-      000176 73                     363 	ld	(hl), e
-                                    364 ;main.c:63: if(actual_x_position <= wall_left || actual_x_position >= wall_right){
-      000177 3E 08                  365 	ld	a, #0x08
-      000179 2B                     366 	dec	hl
-      00017A 96                     367 	sub	a, (hl)
-      00017B 3E 00                  368 	ld	a, #0x00
-      00017D 17                     369 	rla
-      00017E 4F                     370 	ld	c, a
-      00017F CB 41                  371 	bit	0, c
-      000181 28 05                  372 	jr	Z, 00109$
-      000183 7E                     373 	ld	a, (hl)
-      000184 D6 A0                  374 	sub	a, #0xa0
-      000186 38 10                  375 	jr	C, 00110$
-      000188                        376 00109$:
-                                    377 ;main.c:64: x_v = -x_v;
-      000188 AF                     378 	xor	a, a
-      000189 F8 0B                  379 	ldhl	sp,	#11
-      00018B 96                     380 	sub	a, (hl)
-      00018C 77                     381 	ld	(hl), a
-                                    382 ;main.c:65: actual_x_position = actual_x_position <= wall_left ? wall_left : wall_right;
-      00018D CB 41                  383 	bit	0, c
-      00018F 3E 08                  384 	ld	a, #0x08
-      000191 28 02                  385 	jr	Z, 00126$
-      000193 3E A0                  386 	ld	a, #0xa0
-      000195                        387 00126$:
-      000195 F8 03                  388 	ldhl	sp,	#3
-      000197 77                     389 	ld	(hl), a
-      000198                        390 00110$:
-                                    391 ;main.c:67: if(actual_y_position <= wall_up || actual_y_position >= wall_down){
-      000198 3E 10                  392 	ld	a, #0x10
-      00019A F8 04                  393 	ldhl	sp,	#4
-      00019C 96                     394 	sub	a, (hl)
-      00019D 3E 00                  395 	ld	a, #0x00
-      00019F 17                     396 	rla
-      0001A0 4F                     397 	ld	c, a
-      0001A1 CB 41                  398 	bit	0, c
-      0001A3 28 05                  399 	jr	Z, 00112$
-      0001A5 7E                     400 	ld	a, (hl)
-      0001A6 D6 98                  401 	sub	a, #0x98
-      0001A8 38 10                  402 	jr	C, 00113$
-      0001AA                        403 00112$:
-                                    404 ;main.c:68: y_v = -y_v;
-      0001AA AF                     405 	xor	a, a
-      0001AB F8 0C                  406 	ldhl	sp,	#12
-      0001AD 96                     407 	sub	a, (hl)
-      0001AE 77                     408 	ld	(hl), a
-                                    409 ;main.c:69: actual_y_position = actual_y_position <= wall_up ? wall_up : wall_down;
-      0001AF CB 41                  410 	bit	0, c
-      0001B1 3E 10                  411 	ld	a, #0x10
-      0001B3 28 02                  412 	jr	Z, 00128$
-      0001B5 3E 98                  413 	ld	a, #0x98
-      0001B7                        414 00128$:
-      0001B7 F8 04                  415 	ldhl	sp,	#4
-      0001B9 77                     416 	ld	(hl), a
-      0001BA                        417 00113$:
-                                    418 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:652: OAM_item_t * itm = &shadow_OAM[nb];
-      0001BA 01r00r00               419 	ld	bc, #_shadow_OAM
-                                    420 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:653: itm->y=y, itm->x=x; 
-      0001BD F8 04                  421 	ldhl	sp,	#4
-      0001BF 7E                     422 	ld	a, (hl)
-      0001C0 02                     423 	ld	(bc), a
-      0001C1 03                     424 	inc	bc
-      0001C2 2B                     425 	dec	hl
-      0001C3 7E                     426 	ld	a, (hl)
-      0001C4 02                     427 	ld	(bc), a
-                                    428 ;main.c:71: move_sprite(0, actual_x_position, actual_y_position);
-      0001C5 C3r3Br00               429 	jp	00118$
-                                    430 ;main.c:74: }
-      0001C8 E8 0D                  431 	add	sp, #13
-      0001CA C9                     432 	ret
-                                    433 	.area _CODE
-                                    434 	.area _CABS (ABS)
+                                     47 	.area _CODE
+                                     48 ;main.c:7: void main(void){
+                                     49 ;	---------------------------------
+                                     50 ; Function main
+                                     51 ; ---------------------------------
+      000000                         52 _main::
+      000000 E8 F3            [16]   53 	add	sp, #-13
+                                     54 ;main.c:14: uint16_t current_frame = 0;
+      000002 AF               [ 4]   55 	xor	a, a
+      000003 F8 09            [12]   56 	ldhl	sp,	#9
+      000005 22               [ 8]   57 	ld	(hl+), a
+      000006 77               [ 8]   58 	ld	(hl), a
+                                     59 ;main.c:21: uint16_t expanded_x_position = position_divisor*88;
+      000007 F8 00            [12]   60 	ldhl	sp,	#0
+      000009 3E 80            [ 8]   61 	ld	a, #0x80
+      00000B 22               [ 8]   62 	ld	(hl+), a
+                                     63 ;main.c:22: uint16_t expanded_y_position = position_divisor*78;
+      00000C 3E 05            [ 8]   64 	ld	a, #0x05
+      00000E 22               [ 8]   65 	ld	(hl+), a
+      00000F 3E E0            [ 8]   66 	ld	a, #0xe0
+      000011 22               [ 8]   67 	ld	(hl+), a
+      000012 36 04            [12]   68 	ld	(hl), #0x04
+                                     69 ;main.c:25: int8_t x_v = 0;
+      000014 F8 0B            [12]   70 	ldhl	sp,	#11
+                                     71 ;main.c:26: int8_t y_v = 0;
+      000016 AF               [ 4]   72 	xor	a, a
+      000017 22               [ 8]   73 	ld	(hl+), a
+      000018 77               [ 8]   74 	ld	(hl), a
+                                     75 ;main.c:32: set_sprite_data(0, 2, Smiler);
+      000019 11r00r00         [12]   76 	ld	de, #_Smiler
+      00001C D5               [16]   77 	push	de
+      00001D 21 00 02         [12]   78 	ld	hl, #0x200
+      000020 E5               [16]   79 	push	hl
+      000021 CDr00r00         [24]   80 	call	_set_sprite_data
+      000024 E8 04            [16]   81 	add	sp, #4
+                                     82 ;/Users/max/gbdk/include/gb/gb.h:1804: shadow_OAM[nb].tile=tile;
+      000026 21r02r00         [12]   83 	ld	hl, #(_shadow_OAM + 2)
+      000029 36 00            [12]   84 	ld	(hl), #0x00
+                                     85 ;/Users/max/gbdk/include/gb/gb.h:1877: OAM_item_t * itm = &shadow_OAM[nb];
+      00002B 21r00r00         [12]   86 	ld	hl, #_shadow_OAM
+                                     87 ;/Users/max/gbdk/include/gb/gb.h:1878: itm->y=y, itm->x=x;
+      00002E 3E 4E            [ 8]   88 	ld	a, #0x4e
+      000030 22               [ 8]   89 	ld	(hl+), a
+      000031 36 58            [12]   90 	ld	(hl), #0x58
+                                     91 ;main.c:35: SHOW_SPRITES;
+      000033 F0r00            [12]   92 	ldh	a, (_LCDC_REG + 0)
+      000035 F6 02            [ 8]   93 	or	a, #0x02
+      000037 E0r00            [12]   94 	ldh	(_LCDC_REG + 0), a
+                                     95 ;main.c:37: while(1){
+      000039                         96 00118$:
+                                     97 ;main.c:38: if(++current_frame >= frame_to_update_motion){
+      000039 F8 09            [12]   98 	ldhl	sp,	#9
+      00003B 34               [12]   99 	inc	(hl)
+      00003C 20 02            [12]  100 	jr	NZ, 00199$
+      00003E 23               [ 8]  101 	inc	hl
+      00003F 34               [12]  102 	inc	(hl)
+      000040                        103 00199$:
+      000040 F8 09            [12]  104 	ldhl	sp,	#9
+      000042 2A               [ 8]  105 	ld	a, (hl+)
+      000043 D6 F4            [ 8]  106 	sub	a, #0xf4
+      000045 7E               [ 8]  107 	ld	a, (hl)
+      000046 DE 01            [ 8]  108 	sbc	a, #0x01
+      000048 38 EF            [12]  109 	jr	C, 00118$
+                                    110 ;main.c:39: uint8_t joypad_value = joypad();
+      00004A CDr00r00         [24]  111 	call	_joypad
+      00004D F8 04            [12]  112 	ldhl	sp,	#4
+      00004F 77               [ 8]  113 	ld	(hl), a
+                                    114 ;main.c:40: current_frame = 0;
+      000050 AF               [ 4]  115 	xor	a, a
+      000051 F8 09            [12]  116 	ldhl	sp,	#9
+      000053 22               [ 8]  117 	ld	(hl+), a
+      000054 77               [ 8]  118 	ld	(hl), a
+                                    119 ;main.c:41: x_a = -1*( (J_LEFT & joypad_value)>>1 ) + (J_RIGHT & joypad_value);
+      000055 F8 04            [12]  120 	ldhl	sp,	#4
+      000057 2A               [ 8]  121 	ld	a, (hl+)
+      000058 22               [ 8]  122 	ld	(hl+), a
+      000059 AF               [ 4]  123 	xor	a, a
+      00005A 32               [ 8]  124 	ld	(hl-), a
+      00005B 2A               [ 8]  125 	ld	a, (hl+)
+      00005C 23               [ 8]  126 	inc	hl
+      00005D E6 02            [ 8]  127 	and	a, #0x02
+      00005F 22               [ 8]  128 	ld	(hl+), a
+      000060 36 00            [12]  129 	ld	(hl), #0x00
+      000062 CB 3E            [16]  130 	srl	(hl)
+      000064 2B               [ 8]  131 	dec	hl
+      000065 CB 1E            [16]  132 	rr	(hl)
+      000067 7E               [ 8]  133 	ld	a, (hl)
+      000068 4F               [ 4]  134 	ld	c, a
+      000069 87               [ 4]  135 	add	a, a
+      00006A 87               [ 4]  136 	add	a, a
+      00006B 87               [ 4]  137 	add	a, a
+      00006C 87               [ 4]  138 	add	a, a
+      00006D 87               [ 4]  139 	add	a, a
+      00006E 87               [ 4]  140 	add	a, a
+      00006F 87               [ 4]  141 	add	a, a
+      000070 87               [ 4]  142 	add	a, a
+      000071 91               [ 4]  143 	sub	a, c
+      000072 4F               [ 4]  144 	ld	c, a
+      000073 F8 04            [12]  145 	ldhl	sp,	#4
+                                    146 ;main.c:42: y_a = -1*( (J_UP & joypad_value)>>2 ) + ( (J_DOWN & joypad_value)>>3 );
+      000075 2A               [ 8]  147 	ld	a, (hl+)
+      000076 E6 01            [ 8]  148 	and	a, #0x01
+      000078 81               [ 4]  149 	add	a, c
+      000079 4F               [ 4]  150 	ld	c, a
+      00007A 7E               [ 8]  151 	ld	a, (hl)
+      00007B E6 04            [ 8]  152 	and	a, #0x04
+      00007D 5F               [ 4]  153 	ld	e, a
+      00007E 16 00            [ 8]  154 	ld	d, #0x00
+      000080 CB 3A            [ 8]  155 	srl	d
+      000082 CB 1B            [ 8]  156 	rr	e
+      000084 CB 3A            [ 8]  157 	srl	d
+      000086 CB 1B            [ 8]  158 	rr	e
+      000088 7B               [ 4]  159 	ld	a,e
+      000089 87               [ 4]  160 	add	a, a
+      00008A 87               [ 4]  161 	add	a, a
+      00008B 87               [ 4]  162 	add	a, a
+      00008C 87               [ 4]  163 	add	a, a
+      00008D 87               [ 4]  164 	add	a, a
+      00008E 87               [ 4]  165 	add	a, a
+      00008F 87               [ 4]  166 	add	a, a
+      000090 87               [ 4]  167 	add	a, a
+      000091 93               [ 4]  168 	sub	a, e
+      000092 47               [ 4]  169 	ld	b, a
+      000093 7E               [ 8]  170 	ld	a, (hl)
+      000094 E6 08            [ 8]  171 	and	a, #0x08
+      000096 5F               [ 4]  172 	ld	e, a
+      000097 16 00            [ 8]  173 	ld	d, #0x00
+      000099 CB 3A            [ 8]  174 	srl	d
+      00009B CB 1B            [ 8]  175 	rr	e
+      00009D CB 3A            [ 8]  176 	srl	d
+      00009F CB 1B            [ 8]  177 	rr	e
+      0000A1 CB 3A            [ 8]  178 	srl	d
+      0000A3 CB 1B            [ 8]  179 	rr	e
+      0000A5 7B               [ 4]  180 	ld	a, e
+      0000A6 80               [ 4]  181 	add	a, b
+      0000A7 F8 08            [12]  182 	ldhl	sp,	#8
+      0000A9 77               [ 8]  183 	ld	(hl), a
+                                    184 ;main.c:44: x_v += x_a;
+      0000AA F8 0B            [12]  185 	ldhl	sp,	#11
+      0000AC 7E               [ 8]  186 	ld	a, (hl)
+      0000AD 81               [ 4]  187 	add	a, c
+      0000AE 77               [ 8]  188 	ld	(hl), a
+                                    189 ;main.c:45: if(x_v > max_velocity){
+      0000AF 5E               [ 8]  190 	ld	e, (hl)
+      0000B0 3E 40            [ 8]  191 	ld	a,#0x40
+      0000B2 57               [ 4]  192 	ld	d,a
+      0000B3 96               [ 8]  193 	sub	a, (hl)
+      0000B4 CB 7B            [ 8]  194 	bit	7, e
+      0000B6 28 07            [12]  195 	jr	Z, 00200$
+      0000B8 CB 7A            [ 8]  196 	bit	7, d
+      0000BA 20 08            [12]  197 	jr	NZ, 00201$
+      0000BC BF               [ 4]  198 	cp	a, a
+      0000BD 18 05            [12]  199 	jr	00201$
+      0000BF                        200 00200$:
+      0000BF CB 7A            [ 8]  201 	bit	7, d
+      0000C1 28 01            [12]  202 	jr	Z, 00201$
+      0000C3 37               [ 4]  203 	scf
+      0000C4                        204 00201$:
+      0000C4 30 04            [12]  205 	jr	NC, 00102$
+                                    206 ;main.c:46: x_v = max_velocity;
+      0000C6 F8 0B            [12]  207 	ldhl	sp,	#11
+      0000C8 36 40            [12]  208 	ld	(hl), #0x40
+      0000CA                        209 00102$:
+                                    210 ;main.c:48: if(x_v < -max_velocity){
+      0000CA F8 0B            [12]  211 	ldhl	sp,	#11
+      0000CC 7E               [ 8]  212 	ld	a, (hl)
+      0000CD 4F               [ 4]  213 	ld	c, a
+      0000CE 07               [ 4]  214 	rlca
+      0000CF 9F               [ 4]  215 	sbc	a, a
+      0000D0 47               [ 4]  216 	ld	b, a
+      0000D1 79               [ 4]  217 	ld	a, c
+      0000D2 D6 C0            [ 8]  218 	sub	a, #0xc0
+      0000D4 78               [ 4]  219 	ld	a, b
+      0000D5 17               [ 4]  220 	rla
+      0000D6 3F               [ 4]  221 	ccf
+      0000D7 1F               [ 4]  222 	rra
+      0000D8 DE 7F            [ 8]  223 	sbc	a, #0x7f
+      0000DA 30 02            [12]  224 	jr	NC, 00104$
+                                    225 ;main.c:49: x_v = -max_velocity;
+      0000DC 36 C0            [12]  226 	ld	(hl), #0xc0
+      0000DE                        227 00104$:
+                                    228 ;main.c:51: y_v += y_a;
+      0000DE F8 0C            [12]  229 	ldhl	sp,	#12
+      0000E0 7E               [ 8]  230 	ld	a, (hl)
+      0000E1 F8 08            [12]  231 	ldhl	sp,	#8
+      0000E3 86               [ 8]  232 	add	a, (hl)
+      0000E4 F8 0C            [12]  233 	ldhl	sp,	#12
+      0000E6 77               [ 8]  234 	ld	(hl), a
+                                    235 ;main.c:52: if(y_v > max_velocity){
+      0000E7 5E               [ 8]  236 	ld	e, (hl)
+      0000E8 3E 40            [ 8]  237 	ld	a,#0x40
+      0000EA 57               [ 4]  238 	ld	d,a
+      0000EB 96               [ 8]  239 	sub	a, (hl)
+      0000EC CB 7B            [ 8]  240 	bit	7, e
+      0000EE 28 07            [12]  241 	jr	Z, 00202$
+      0000F0 CB 7A            [ 8]  242 	bit	7, d
+      0000F2 20 08            [12]  243 	jr	NZ, 00203$
+      0000F4 BF               [ 4]  244 	cp	a, a
+      0000F5 18 05            [12]  245 	jr	00203$
+      0000F7                        246 00202$:
+      0000F7 CB 7A            [ 8]  247 	bit	7, d
+      0000F9 28 01            [12]  248 	jr	Z, 00203$
+      0000FB 37               [ 4]  249 	scf
+      0000FC                        250 00203$:
+      0000FC 30 04            [12]  251 	jr	NC, 00106$
+                                    252 ;main.c:53: y_v = max_velocity;
+      0000FE F8 0C            [12]  253 	ldhl	sp,	#12
+      000100 36 40            [12]  254 	ld	(hl), #0x40
+      000102                        255 00106$:
+                                    256 ;main.c:55: if(y_v < -max_velocity){
+      000102 F8 0C            [12]  257 	ldhl	sp,	#12
+      000104 7E               [ 8]  258 	ld	a, (hl)
+      000105 4F               [ 4]  259 	ld	c, a
+      000106 07               [ 4]  260 	rlca
+      000107 9F               [ 4]  261 	sbc	a, a
+      000108 47               [ 4]  262 	ld	b, a
+      000109 79               [ 4]  263 	ld	a, c
+      00010A D6 C0            [ 8]  264 	sub	a, #0xc0
+      00010C 78               [ 4]  265 	ld	a, b
+      00010D 17               [ 4]  266 	rla
+      00010E 3F               [ 4]  267 	ccf
+      00010F 1F               [ 4]  268 	rra
+      000110 DE 7F            [ 8]  269 	sbc	a, #0x7f
+      000112 30 02            [12]  270 	jr	NC, 00108$
+                                    271 ;main.c:56: y_v = -max_velocity;
+      000114 36 C0            [12]  272 	ld	(hl), #0xc0
+      000116                        273 00108$:
+                                    274 ;main.c:58: expanded_x_position += x_v;
+      000116 F8 0B            [12]  275 	ldhl	sp,	#11
+      000118 7E               [ 8]  276 	ld	a, (hl)
+      000119 5F               [ 4]  277 	ld	e, a
+      00011A 07               [ 4]  278 	rlca
+      00011B 9F               [ 4]  279 	sbc	a, a
+      00011C 57               [ 4]  280 	ld	d, a
+      00011D F8 00            [12]  281 	ldhl	sp,	#0
+      00011F 2A               [ 8]  282 	ld	a, (hl+)
+      000120 46               [ 8]  283 	ld	b, (hl)
+      000121 2B               [ 8]  284 	dec	hl
+      000122 83               [ 4]  285 	add	a, e
+      000123 4F               [ 4]  286 	ld	c, a
+      000124 78               [ 4]  287 	ld	a, b
+      000125 8A               [ 4]  288 	adc	a, d
+      000126 71               [ 8]  289 	ld	(hl), c
+      000127 23               [ 8]  290 	inc	hl
+      000128 77               [ 8]  291 	ld	(hl), a
+                                    292 ;main.c:59: actual_x_position = expanded_x_position/position_divisor;
+      000129 01 10 00         [12]  293 	ld	bc, #0x0010
+      00012C D1               [12]  294 	pop	de
+      00012D D5               [16]  295 	push	de
+      00012E CDr00r00         [24]  296 	call	__divuint
+      000131 F8 08            [12]  297 	ldhl	sp,	#8
+      000133 71               [ 8]  298 	ld	(hl), c
+                                    299 ;main.c:60: expanded_y_position += y_v;
+      000134 F8 0C            [12]  300 	ldhl	sp,	#12
+      000136 7E               [ 8]  301 	ld	a, (hl)
+      000137 5F               [ 4]  302 	ld	e, a
+      000138 07               [ 4]  303 	rlca
+      000139 9F               [ 4]  304 	sbc	a, a
+      00013A 57               [ 4]  305 	ld	d, a
+      00013B F8 02            [12]  306 	ldhl	sp,	#2
+      00013D 2A               [ 8]  307 	ld	a, (hl+)
+      00013E 46               [ 8]  308 	ld	b, (hl)
+      00013F 2B               [ 8]  309 	dec	hl
+      000140 83               [ 4]  310 	add	a, e
+      000141 4F               [ 4]  311 	ld	c, a
+      000142 78               [ 4]  312 	ld	a, b
+      000143 8A               [ 4]  313 	adc	a, d
+      000144 71               [ 8]  314 	ld	(hl), c
+      000145 23               [ 8]  315 	inc	hl
+                                    316 ;main.c:61: actual_y_position = expanded_y_position/position_divisor;
+      000146 32               [ 8]  317 	ld	(hl-), a
+      000147 01 10 00         [12]  318 	ld	bc, #0x0010
+      00014A 2A               [ 8]  319 	ld	a, (hl+)
+      00014B 5F               [ 4]  320 	ld	e, a
+      00014C 56               [ 8]  321 	ld	d, (hl)
+      00014D CDr00r00         [24]  322 	call	__divuint
+      000150 F8 07            [12]  323 	ldhl	sp,	#7
+                                    324 ;main.c:63: if(actual_x_position <= wall_left || actual_x_position >= wall_right){
+      000152 79               [ 4]  325 	ld	a, c
+      000153 22               [ 8]  326 	ld	(hl+), a
+      000154 3E 08            [ 8]  327 	ld	a, #0x08
+      000156 96               [ 8]  328 	sub	a, (hl)
+      000157 3E 00            [ 8]  329 	ld	a, #0x00
+      000159 17               [ 4]  330 	rla
+      00015A 4F               [ 4]  331 	ld	c, a
+      00015B CB 41            [ 8]  332 	bit	0, c
+      00015D 28 05            [12]  333 	jr	Z, 00109$
+      00015F 7E               [ 8]  334 	ld	a, (hl)
+      000160 D6 A0            [ 8]  335 	sub	a, #0xa0
+      000162 38 13            [12]  336 	jr	C, 00110$
+      000164                        337 00109$:
+                                    338 ;main.c:64: x_v = -x_v;
+      000164 AF               [ 4]  339 	xor	a, a
+      000165 F8 0B            [12]  340 	ldhl	sp,	#11
+      000167 96               [ 8]  341 	sub	a, (hl)
+      000168 77               [ 8]  342 	ld	(hl), a
+                                    343 ;main.c:65: actual_x_position = actual_x_position <= wall_left ? wall_left : wall_right;
+      000169 CB 41            [ 8]  344 	bit	0, c
+      00016B 20 06            [12]  345 	jr	NZ, 00125$
+      00016D F8 08            [12]  346 	ldhl	sp,	#8
+      00016F 36 08            [12]  347 	ld	(hl), #0x08
+      000171 18 04            [12]  348 	jr	00126$
+      000173                        349 00125$:
+      000173 F8 08            [12]  350 	ldhl	sp,	#8
+      000175 36 A0            [12]  351 	ld	(hl), #0xa0
+      000177                        352 00126$:
+      000177                        353 00110$:
+                                    354 ;main.c:67: if(actual_y_position <= wall_up || actual_y_position >= wall_down){
+      000177 3E 10            [ 8]  355 	ld	a, #0x10
+      000179 F8 07            [12]  356 	ldhl	sp,	#7
+      00017B 96               [ 8]  357 	sub	a, (hl)
+      00017C 3E 00            [ 8]  358 	ld	a, #0x00
+      00017E 17               [ 4]  359 	rla
+      00017F 4F               [ 4]  360 	ld	c, a
+      000180 CB 41            [ 8]  361 	bit	0, c
+      000182 28 05            [12]  362 	jr	Z, 00112$
+      000184 7E               [ 8]  363 	ld	a, (hl)
+      000185 D6 98            [ 8]  364 	sub	a, #0x98
+      000187 38 10            [12]  365 	jr	C, 00113$
+      000189                        366 00112$:
+                                    367 ;main.c:68: y_v = -y_v;
+      000189 AF               [ 4]  368 	xor	a, a
+      00018A F8 0C            [12]  369 	ldhl	sp,	#12
+      00018C 96               [ 8]  370 	sub	a, (hl)
+      00018D 77               [ 8]  371 	ld	(hl), a
+                                    372 ;main.c:69: actual_y_position = actual_y_position <= wall_up ? wall_up : wall_down;
+      00018E CB 41            [ 8]  373 	bit	0, c
+      000190 3E 10            [ 8]  374 	ld	a, #0x10
+      000192 28 02            [12]  375 	jr	Z, 00128$
+      000194 3E 98            [ 8]  376 	ld	a, #0x98
+      000196                        377 00128$:
+      000196 F8 07            [12]  378 	ldhl	sp,	#7
+      000198 77               [ 8]  379 	ld	(hl), a
+      000199                        380 00113$:
+                                    381 ;/Users/max/gbdk/include/gb/gb.h:1877: OAM_item_t * itm = &shadow_OAM[nb];
+      000199 01r00r00         [12]  382 	ld	bc, #_shadow_OAM
+                                    383 ;/Users/max/gbdk/include/gb/gb.h:1878: itm->y=y, itm->x=x;
+      00019C F8 07            [12]  384 	ldhl	sp,	#7
+      00019E 2A               [ 8]  385 	ld	a, (hl+)
+      00019F 02               [ 8]  386 	ld	(bc), a
+      0001A0 03               [ 8]  387 	inc	bc
+      0001A1 7E               [ 8]  388 	ld	a, (hl)
+      0001A2 02               [ 8]  389 	ld	(bc), a
+                                    390 ;main.c:71: move_sprite(0, actual_x_position, actual_y_position);
+      0001A3 C3r39r00         [16]  391 	jp	00118$
+                                    392 ;main.c:74: }
+      0001A6 E8 0D            [16]  393 	add	sp, #13
+      0001A8 C9               [16]  394 	ret
+                                    395 	.area _CODE
+                                    396 	.area _INITIALIZER
+      000000                        397 __xinit__Smiler:
+      000000 7E                     398 	.db #0x7e	; 126
+      000001 7E                     399 	.db #0x7e	; 126
+      000002 FF                     400 	.db #0xff	; 255
+      000003 81                     401 	.db #0x81	; 129
+      000004 FF                     402 	.db #0xff	; 255
+      000005 A5                     403 	.db #0xa5	; 165
+      000006 FF                     404 	.db #0xff	; 255
+      000007 81                     405 	.db #0x81	; 129
+      000008 FF                     406 	.db #0xff	; 255
+      000009 81                     407 	.db #0x81	; 129
+      00000A FF                     408 	.db #0xff	; 255
+      00000B BD                     409 	.db #0xbd	; 189
+      00000C FF                     410 	.db #0xff	; 255
+      00000D 81                     411 	.db #0x81	; 129
+      00000E 7E                     412 	.db #0x7e	; 126
+      00000F 7E                     413 	.db #0x7e	; 126
+      000010 7E                     414 	.db #0x7e	; 126
+      000011 7E                     415 	.db #0x7e	; 126
+      000012 FF                     416 	.db #0xff	; 255
+      000013 81                     417 	.db #0x81	; 129
+      000014 FF                     418 	.db #0xff	; 255
+      000015 A5                     419 	.db #0xa5	; 165
+      000016 FF                     420 	.db #0xff	; 255
+      000017 81                     421 	.db #0x81	; 129
+      000018 FF                     422 	.db #0xff	; 255
+      000019 A5                     423 	.db #0xa5	; 165
+      00001A FF                     424 	.db #0xff	; 255
+      00001B 99                     425 	.db #0x99	; 153
+      00001C FF                     426 	.db #0xff	; 255
+      00001D 81                     427 	.db #0x81	; 129
+      00001E 7E                     428 	.db #0x7e	; 126
+      00001F 7E                     429 	.db #0x7e	; 126
+                                    430 	.area _CABS (ABS)
