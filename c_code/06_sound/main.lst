@@ -1,0 +1,86 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ANSI-C Compiler
+                                      3 ; Version 4.0.3 #11868 (Mac OS X x86_64)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module main
+                                      6 	.optsdcc -mgbz80
+                                      7 	
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _main
+                                     12 	.globl _joypad
+                                     13 	.globl _delay
+                                     14 ;--------------------------------------------------------
+                                     15 ; special function registers
+                                     16 ;--------------------------------------------------------
+                                     17 ;--------------------------------------------------------
+                                     18 ; ram data
+                                     19 ;--------------------------------------------------------
+                                     20 	.area _DATA
+                                     21 ;--------------------------------------------------------
+                                     22 ; absolute external ram data
+                                     23 ;--------------------------------------------------------
+                                     24 	.area _DABS (ABS)
+                                     25 ;--------------------------------------------------------
+                                     26 ; global & static initialisations
+                                     27 ;--------------------------------------------------------
+                                     28 	.area _HOME
+                                     29 	.area _GSINIT
+                                     30 	.area _GSFINAL
+                                     31 	.area _GSINIT
+                                     32 ;--------------------------------------------------------
+                                     33 ; Home
+                                     34 ;--------------------------------------------------------
+                                     35 	.area _HOME
+                                     36 	.area _HOME
+                                     37 ;--------------------------------------------------------
+                                     38 ; code
+                                     39 ;--------------------------------------------------------
+                                     40 	.area _CODE
+                                     41 ;main.c:4: void main(){
+                                     42 ;	---------------------------------
+                                     43 ; Function main
+                                     44 ; ---------------------------------
+      000000                         45 _main::
+                                     46 ;main.c:6: NR52_REG = 0x80; // is 1000 0000 in binary and turns on sound
+      000000 3E 80                   47 	ld	a, #0x80
+      000002 E0r00                   48 	ldh	(_NR52_REG+0),a
+                                     49 ;main.c:7: NR50_REG = 0x77; // sets the volume for both left and right channel just set to max 0x77
+      000004 3E 77                   50 	ld	a, #0x77
+      000006 E0r00                   51 	ldh	(_NR50_REG+0),a
+                                     52 ;main.c:8: NR51_REG = 0xFF; // is 1111 1111 in binary, select which chanels we want to use in this case all of them. One bit for the L one bit for the R of all four channels
+      000008 3E FF                   53 	ld	a, #0xff
+      00000A E0r00                   54 	ldh	(_NR51_REG+0),a
+                                     55 ;main.c:11: while(1) {
+      00000C                         56 00104$:
+                                     57 ;main.c:12: UBYTE joypad_state = joypad();
+      00000C CDr00r00                58 	call	_joypad
+      00000F 7B                      59 	ld	a, e
+                                     60 ;main.c:14: if(joypad_state) {   
+      000010 B7                      61 	or	a, a
+      000011 28 F9                   62 	jr	Z, 00104$
+                                     63 ;main.c:22: NR10_REG = 0x16; 
+      000013 3E 16                   64 	ld	a, #0x16
+      000015 E0r00                   65 	ldh	(_NR10_REG+0),a
+                                     66 ;main.c:29: NR11_REG = 0x40;
+      000017 3E 40                   67 	ld	a, #0x40
+      000019 E0r00                   68 	ldh	(_NR11_REG+0),a
+                                     69 ;main.c:38: NR12_REG = 0x73;  
+      00001B 3E 73                   70 	ld	a, #0x73
+      00001D E0r00                   71 	ldh	(_NR12_REG+0),a
+                                     72 ;main.c:43: NR13_REG = 0x00;   
+      00001F 3E 00                   73 	ld	a, #0x00
+      000021 E0r00                   74 	ldh	(_NR13_REG+0),a
+                                     75 ;main.c:52: NR14_REG = 0xC3;	    
+      000023 3E C3                   76 	ld	a, #0xc3
+      000025 E0r00                   77 	ldh	(_NR14_REG+0),a
+                                     78 ;main.c:54: delay(1000);
+      000027 21 E8 03                79 	ld	hl, #0x03e8
+      00002A E5                      80 	push	hl
+      00002B CDr00r00                81 	call	_delay
+      00002E E8 02                   82 	add	sp, #2
+                                     83 ;main.c:57: }
+      000030 18 DA                   84 	jr	00104$
+                                     85 	.area _CODE
+                                     86 	.area _CABS (ABS)

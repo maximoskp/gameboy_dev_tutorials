@@ -1,0 +1,205 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ANSI-C Compiler
+                                      3 ; Version 4.0.3 #11868 (Mac OS X x86_64)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module main
+                                      6 	.optsdcc -mgbz80
+                                      7 	
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _main
+                                     12 	.globl _set_sprite_data
+                                     13 	.globl _joypad
+                                     14 	.globl _Smiler
+                                     15 ;--------------------------------------------------------
+                                     16 ; special function registers
+                                     17 ;--------------------------------------------------------
+                                     18 ;--------------------------------------------------------
+                                     19 ; ram data
+                                     20 ;--------------------------------------------------------
+                                     21 	.area _DATA
+      000000                         22 _Smiler::
+      000000                         23 	.ds 32
+                                     24 ;--------------------------------------------------------
+                                     25 ; absolute external ram data
+                                     26 ;--------------------------------------------------------
+                                     27 	.area _DABS (ABS)
+                                     28 ;--------------------------------------------------------
+                                     29 ; global & static initialisations
+                                     30 ;--------------------------------------------------------
+                                     31 	.area _HOME
+                                     32 	.area _GSINIT
+                                     33 	.area _GSFINAL
+                                     34 	.area _GSINIT
+                                     35 ;SmilerSprites.c:26: unsigned char Smiler[] =
+      000000 01r00r00                36 	ld	bc, #_Smiler+0
+      000003 59                      37 	ld	e, c
+      000004 50                      38 	ld	d, b
+      000005 CDr00r00                39 	call	__initrleblock
+      000008 20                      40 	.db	#32
+      000009 7E 7E FF 81 FF A5 FF    41 	.db	#0x7E, #0x7E, #0xFF, #0x81, #0xFF, #0xA5, #0xFF, #0x81
+             81
+      000011 FF 81 FF BD FF 81 7E    42 	.db	#0xFF, #0x81, #0xFF, #0xBD, #0xFF, #0x81, #0x7E, #0x7E
+             7E
+      000019 7E 7E FF 81 FF A5 FF    43 	.db	#0x7E, #0x7E, #0xFF, #0x81, #0xFF, #0xA5, #0xFF, #0x81
+             81
+      000021 FF A5 FF 99 FF 81 7E    44 	.db	#0xFF, #0xA5, #0xFF, #0x99, #0xFF, #0x81, #0x7E, #0x7E
+             7E
+      000029 00                      45 	.db	#0
+                                     46 ;--------------------------------------------------------
+                                     47 ; Home
+                                     48 ;--------------------------------------------------------
+                                     49 	.area _HOME
+                                     50 	.area _HOME
+                                     51 ;--------------------------------------------------------
+                                     52 ; code
+                                     53 ;--------------------------------------------------------
+                                     54 	.area _CODE
+                                     55 ;main.c:7: void main(){
+                                     56 ;	---------------------------------
+                                     57 ; Function main
+                                     58 ; ---------------------------------
+      000000                         59 _main::
+      000000 E8 FD                   60 	add	sp, #-3
+                                     61 ;main.c:10: UINT16 current_frame = 0;
+      000002 AF                      62 	xor	a, a
+      000003 F8 01                   63 	ldhl	sp,	#1
+      000005 22                      64 	ld	(hl+), a
+      000006 77                      65 	ld	(hl), a
+                                     66 ;main.c:17: set_sprite_data(0, 2, Smiler);
+      000007 21r00r00                67 	ld	hl, #_Smiler
+      00000A E5                      68 	push	hl
+      00000B 3E 02                   69 	ld	a, #0x02
+      00000D F5                      70 	push	af
+      00000E 33                      71 	inc	sp
+      00000F AF                      72 	xor	a, a
+      000010 F5                      73 	push	af
+      000011 33                      74 	inc	sp
+      000012 CDr00r00                75 	call	_set_sprite_data
+      000015 E8 04                   76 	add	sp, #4
+                                     77 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:610: shadow_OAM[nb].tile=tile; 
+      000017 21r02r00                78 	ld	hl, #(_shadow_OAM + 0x0002)
+      00001A 36 00                   79 	ld	(hl), #0x00
+                                     80 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:652: OAM_item_t * itm = &shadow_OAM[nb];
+      00001C 21r00r00                81 	ld	hl, #_shadow_OAM
+                                     82 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:653: itm->y=y, itm->x=x; 
+      00001F 3E 4E                   83 	ld	a, #0x4e
+      000021 22                      84 	ld	(hl+), a
+      000022 36 58                   85 	ld	(hl), #0x58
+                                     86 ;main.c:20: SHOW_SPRITES;
+      000024 F0r00                   87 	ldh	a, (_LCDC_REG+0)
+      000026 F6 02                   88 	or	a, #0x02
+      000028 E0r00                   89 	ldh	(_LCDC_REG+0),a
+                                     90 ;main.c:22: while(1){
+      00002A                         91 00104$:
+                                     92 ;main.c:23: if(++current_frame >= frame_to_update_motion){
+      00002A F8 01                   93 	ldhl	sp,	#1
+      00002C 34                      94 	inc	(hl)
+      00002D 20 02                   95 	jr	NZ, 00121$
+      00002F 23                      96 	inc	hl
+      000030 34                      97 	inc	(hl)
+      000031                         98 00121$:
+      000031 F8 01                   99 	ldhl	sp,	#1
+      000033 7E                     100 	ld	a, (hl)
+      000034 D6 E8                  101 	sub	a, #0xe8
+      000036 23                     102 	inc	hl
+      000037 7E                     103 	ld	a, (hl)
+      000038 DE 03                  104 	sbc	a, #0x03
+      00003A 38 EE                  105 	jr	C, 00104$
+                                    106 ;main.c:24: UINT8 joypad_value = joypad();
+      00003C CDr00r00               107 	call	_joypad
+      00003F F8 00                  108 	ldhl	sp,	#0
+      000041 73                     109 	ld	(hl), e
+                                    110 ;main.c:25: current_frame = 0;
+      000042 AF                     111 	xor	a, a
+      000043 23                     112 	inc	hl
+      000044 22                     113 	ld	(hl+), a
+                                    114 ;main.c:26: horizontal_motion = -1*( (J_LEFT & joypad_value)>>1 ) + (J_RIGHT & joypad_value);
+      000045 32                     115 	ld	(hl-), a
+      000046 2B                     116 	dec	hl
+      000047 4E                     117 	ld	c, (hl)
+      000048 79                     118 	ld	a, c
+      000049 E6 02                  119 	and	a, #0x02
+      00004B 5F                     120 	ld	e, a
+      00004C 16 00                  121 	ld	d, #0x00
+      00004E CB 3A                  122 	srl	d
+      000050 CB 1B                  123 	rr	e
+      000052 7B                     124 	ld	a,e
+      000053 87                     125 	add	a, a
+      000054 83                     126 	add	a, e
+      000055 87                     127 	add	a, a
+      000056 83                     128 	add	a, e
+      000057 87                     129 	add	a, a
+      000058 83                     130 	add	a, e
+      000059 87                     131 	add	a, a
+      00005A 83                     132 	add	a, e
+      00005B 87                     133 	add	a, a
+      00005C 83                     134 	add	a, e
+      00005D 87                     135 	add	a, a
+      00005E 83                     136 	add	a, e
+      00005F 87                     137 	add	a, a
+      000060 83                     138 	add	a, e
+      000061 F5                     139 	push	af
+      000062 F8 02                  140 	ldhl	sp,	#2
+      000064 7E                     141 	ld	a, (hl)
+      000065 E6 01                  142 	and	a, #0x01
+      000067 5F                     143 	ld	e, a
+      000068 F1                     144 	pop	af
+      000069 83                     145 	add	a, e
+      00006A 77                     146 	ld	(hl), a
+                                    147 ;main.c:27: vertical_motion = -1*( (J_UP & joypad_value)>>2 ) + ( (J_DOWN & joypad_value)>>3 );
+      00006B 79                     148 	ld	a, c
+      00006C E6 04                  149 	and	a, #0x04
+      00006E 6F                     150 	ld	l, a
+      00006F 26 00                  151 	ld	h, #0x00
+      000071 CB 3C                  152 	srl	h
+      000073 CB 1D                  153 	rr	l
+      000075 CB 3C                  154 	srl	h
+      000077 CB 1D                  155 	rr	l
+      000079 5D                     156 	ld	e, l
+      00007A 29                     157 	add	hl, hl
+      00007B 19                     158 	add	hl, de
+      00007C 29                     159 	add	hl, hl
+      00007D 19                     160 	add	hl, de
+      00007E 29                     161 	add	hl, hl
+      00007F 19                     162 	add	hl, de
+      000080 29                     163 	add	hl, hl
+      000081 19                     164 	add	hl, de
+      000082 29                     165 	add	hl, hl
+      000083 19                     166 	add	hl, de
+      000084 29                     167 	add	hl, hl
+      000085 19                     168 	add	hl, de
+      000086 29                     169 	add	hl, hl
+      000087 19                     170 	add	hl, de
+      000088 79                     171 	ld	a, c
+      000089 E6 08                  172 	and	a, #0x08
+      00008B 4F                     173 	ld	c, a
+      00008C 06 00                  174 	ld	b, #0x00
+      00008E CB 38                  175 	srl	b
+      000090 CB 19                  176 	rr	c
+      000092 CB 38                  177 	srl	b
+      000094 CB 19                  178 	rr	c
+      000096 CB 38                  179 	srl	b
+      000098 CB 19                  180 	rr	c
+      00009A 79                     181 	ld	a, c
+      00009B 85                     182 	add	a, l
+      00009C 5F                     183 	ld	e, a
+                                    184 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:659: OAM_item_t * itm = &shadow_OAM[nb];
+      00009D 01r00r00               185 	ld	bc, #_shadow_OAM+0
+                                    186 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:660: itm->y+=y, itm->x+=x; 
+      0000A0 0A                     187 	ld	a, (bc)
+      0000A1 83                     188 	add	a, e
+      0000A2 02                     189 	ld	(bc), a
+      0000A3 03                     190 	inc	bc
+      0000A4 0A                     191 	ld	a, (bc)
+      0000A5 F8 00                  192 	ldhl	sp,	#0
+      0000A7 86                     193 	add	a, (hl)
+      0000A8 02                     194 	ld	(bc), a
+                                    195 ;main.c:29: scroll_sprite(0,horizontal_motion,vertical_motion);
+      0000A9 C3r2Ar00               196 	jp	00104$
+                                    197 ;main.c:32: }
+      0000AC E8 03                  198 	add	sp, #3
+      0000AE C9                     199 	ret
+                                    200 	.area _CODE
+                                    201 	.area _CABS (ABS)

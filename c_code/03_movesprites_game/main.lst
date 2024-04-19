@@ -1,0 +1,1046 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ANSI-C Compiler
+                                      3 ; Version 4.0.3 #11868 (Mac OS X x86_64)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module main
+                                      6 	.optsdcc -mgbz80
+                                      7 	
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _main
+                                     12 	.globl _move_enemy
+                                     13 	.globl _move_player
+                                     14 	.globl _set_sprite_data
+                                     15 	.globl _joypad
+                                     16 	.globl _en_y_a
+                                     17 	.globl _en_x_a
+                                     18 	.globl _en_y_v
+                                     19 	.globl _en_x_v
+                                     20 	.globl _en_actual_y_position
+                                     21 	.globl _en_actual_x_position
+                                     22 	.globl _en_expanded_y_position
+                                     23 	.globl _en_expanded_x_position
+                                     24 	.globl _pl_y_a
+                                     25 	.globl _pl_x_a
+                                     26 	.globl _pl_y_v
+                                     27 	.globl _pl_x_v
+                                     28 	.globl _pl_actual_y_position
+                                     29 	.globl _pl_actual_x_position
+                                     30 	.globl _pl_expanded_y_position
+                                     31 	.globl _pl_expanded_x_position
+                                     32 	.globl _position_divisor
+                                     33 	.globl _max_velocity
+                                     34 	.globl _frame_to_update_motion
+                                     35 	.globl _current_frame
+                                     36 	.globl _currentspriteindex
+                                     37 	.globl _wall_down
+                                     38 	.globl _wall_up
+                                     39 	.globl _wall_left
+                                     40 	.globl _wall_right
+                                     41 	.globl _Smiler
+                                     42 ;--------------------------------------------------------
+                                     43 ; special function registers
+                                     44 ;--------------------------------------------------------
+                                     45 ;--------------------------------------------------------
+                                     46 ; ram data
+                                     47 ;--------------------------------------------------------
+                                     48 	.area _DATA
+      000000                         49 _Smiler::
+      000000                         50 	.ds 32
+      000020                         51 _wall_right::
+      000020                         52 	.ds 1
+      000021                         53 _wall_left::
+      000021                         54 	.ds 1
+      000022                         55 _wall_up::
+      000022                         56 	.ds 1
+      000023                         57 _wall_down::
+      000023                         58 	.ds 1
+      000024                         59 _currentspriteindex::
+      000024                         60 	.ds 1
+      000025                         61 _current_frame::
+      000025                         62 	.ds 2
+      000027                         63 _frame_to_update_motion::
+      000027                         64 	.ds 2
+      000029                         65 _max_velocity::
+      000029                         66 	.ds 1
+      00002A                         67 _position_divisor::
+      00002A                         68 	.ds 1
+      00002B                         69 _pl_expanded_x_position::
+      00002B                         70 	.ds 2
+      00002D                         71 _pl_expanded_y_position::
+      00002D                         72 	.ds 2
+      00002F                         73 _pl_actual_x_position::
+      00002F                         74 	.ds 1
+      000030                         75 _pl_actual_y_position::
+      000030                         76 	.ds 1
+      000031                         77 _pl_x_v::
+      000031                         78 	.ds 1
+      000032                         79 _pl_y_v::
+      000032                         80 	.ds 1
+      000033                         81 _pl_x_a::
+      000033                         82 	.ds 1
+      000034                         83 _pl_y_a::
+      000034                         84 	.ds 1
+      000035                         85 _en_expanded_x_position::
+      000035                         86 	.ds 2
+      000037                         87 _en_expanded_y_position::
+      000037                         88 	.ds 2
+      000039                         89 _en_actual_x_position::
+      000039                         90 	.ds 1
+      00003A                         91 _en_actual_y_position::
+      00003A                         92 	.ds 1
+      00003B                         93 _en_x_v::
+      00003B                         94 	.ds 1
+      00003C                         95 _en_y_v::
+      00003C                         96 	.ds 1
+      00003D                         97 _en_x_a::
+      00003D                         98 	.ds 1
+      00003E                         99 _en_y_a::
+      00003E                        100 	.ds 1
+                                    101 ;--------------------------------------------------------
+                                    102 ; absolute external ram data
+                                    103 ;--------------------------------------------------------
+                                    104 	.area _DABS (ABS)
+                                    105 ;--------------------------------------------------------
+                                    106 ; global & static initialisations
+                                    107 ;--------------------------------------------------------
+                                    108 	.area _HOME
+                                    109 	.area _GSINIT
+                                    110 	.area _GSFINAL
+                                    111 	.area _GSINIT
+                                    112 ;SmilerSprites.c:26: unsigned char Smiler[] =
+      000000 01r00r00               113 	ld	bc, #_Smiler+0
+      000003 59                     114 	ld	e, c
+      000004 50                     115 	ld	d, b
+      000005 CDr00r00               116 	call	__initrleblock
+      000008 20                     117 	.db	#32
+      000009 7E 7E FF 81 FF A5 FF   118 	.db	#0x7E, #0x7E, #0xFF, #0x81, #0xFF, #0xA5, #0xFF, #0x81
+             81
+      000011 FF 81 FF BD FF 81 7E   119 	.db	#0xFF, #0x81, #0xFF, #0xBD, #0xFF, #0x81, #0x7E, #0x7E
+             7E
+      000019 7E 7E FF 81 FF A5 FF   120 	.db	#0x7E, #0x7E, #0xFF, #0x81, #0xFF, #0xA5, #0xFF, #0x81
+             81
+      000021 FF A5 FF 99 FF 81 7E   121 	.db	#0xFF, #0xA5, #0xFF, #0x99, #0xFF, #0x81, #0x7E, #0x7E
+             7E
+      000029 00                     122 	.db	#0
+                                    123 ;main.c:7: UINT8 wall_right = SCREENWIDTH;
+      00002A 21r20r00               124 	ld	hl, #_wall_right
+      00002D 36 A0                  125 	ld	(hl), #0xa0
+                                    126 ;main.c:8: UINT8 wall_left = 8;
+      00002F 21r21r00               127 	ld	hl, #_wall_left
+      000032 36 08                  128 	ld	(hl), #0x08
+                                    129 ;main.c:9: UINT8 wall_up = 16;
+      000034 21r22r00               130 	ld	hl, #_wall_up
+      000037 36 10                  131 	ld	(hl), #0x10
+                                    132 ;main.c:10: UINT8 wall_down = SCREENHEIGHT+(UINT8)8;
+      000039 21r23r00               133 	ld	hl, #_wall_down
+      00003C 36 98                  134 	ld	(hl), #0x98
+                                    135 ;main.c:11: UINT8 currentspriteindex = 0;
+      00003E 21r24r00               136 	ld	hl, #_currentspriteindex
+      000041 36 00                  137 	ld	(hl), #0x00
+                                    138 ;main.c:13: UINT16 current_frame = 0;
+      000043 21r25r00               139 	ld	hl, #_current_frame
+      000046 36 00                  140 	ld	(hl), #0x00
+      000048 23                     141 	inc	hl
+      000049 36 00                  142 	ld	(hl), #0x00
+                                    143 ;main.c:15: UINT16 frame_to_update_motion = 500;
+      00004B 21r27r00               144 	ld	hl, #_frame_to_update_motion
+      00004E 36 F4                  145 	ld	(hl), #0xf4
+      000050 23                     146 	inc	hl
+      000051 36 01                  147 	ld	(hl), #0x01
+                                    148 ;main.c:17: INT8 max_velocity = 64; // divided by divisor
+      000053 21r29r00               149 	ld	hl, #_max_velocity
+      000056 36 40                  150 	ld	(hl), #0x40
+                                    151 ;main.c:19: INT8 position_divisor = 16;
+      000058 21r2Ar00               152 	ld	hl, #_position_divisor
+      00005B 36 10                  153 	ld	(hl), #0x10
+                                    154 ;main.c:25: INT8 pl_x_v = 0;
+      00005D 21r31r00               155 	ld	hl, #_pl_x_v
+      000060 36 00                  156 	ld	(hl), #0x00
+                                    157 ;main.c:26: INT8 pl_y_v = 0;
+      000062 21r32r00               158 	ld	hl, #_pl_y_v
+      000065 36 00                  159 	ld	(hl), #0x00
+                                    160 ;main.c:27: INT8 pl_x_a = 0;
+      000067 21r33r00               161 	ld	hl, #_pl_x_a
+      00006A 36 00                  162 	ld	(hl), #0x00
+                                    163 ;main.c:28: INT8 pl_y_a = 0;
+      00006C 21r34r00               164 	ld	hl, #_pl_y_a
+      00006F 36 00                  165 	ld	(hl), #0x00
+                                    166 ;main.c:34: INT8 en_x_v = 15;
+      000071 21r3Br00               167 	ld	hl, #_en_x_v
+      000074 36 0F                  168 	ld	(hl), #0x0f
+                                    169 ;main.c:35: INT8 en_y_v = -35;
+      000076 21r3Cr00               170 	ld	hl, #_en_y_v
+      000079 36 DD                  171 	ld	(hl), #0xdd
+                                    172 ;main.c:36: INT8 en_x_a = 0;
+      00007B 21r3Dr00               173 	ld	hl, #_en_x_a
+      00007E 36 00                  174 	ld	(hl), #0x00
+                                    175 ;main.c:37: INT8 en_y_a = 0;
+      000080 21r3Er00               176 	ld	hl, #_en_y_a
+      000083 36 00                  177 	ld	(hl), #0x00
+                                    178 ;--------------------------------------------------------
+                                    179 ; Home
+                                    180 ;--------------------------------------------------------
+                                    181 	.area _HOME
+                                    182 	.area _HOME
+                                    183 ;--------------------------------------------------------
+                                    184 ; code
+                                    185 ;--------------------------------------------------------
+                                    186 	.area _CODE
+                                    187 ;main.c:39: void move_player(){
+                                    188 ;	---------------------------------
+                                    189 ; Function move_player
+                                    190 ; ---------------------------------
+      000000                        191 _move_player::
+      000000 E8 FC                  192 	add	sp, #-4
+                                    193 ;main.c:40: UINT8 joypad_value = joypad();
+      000002 CDr00r00               194 	call	_joypad
+      000005 43                     195 	ld	b, e
+                                    196 ;main.c:41: pl_x_a = -1*( (J_LEFT & joypad_value)>>1 ) + (J_RIGHT & joypad_value);
+      000006 F8 02                  197 	ldhl	sp,	#2
+      000008 70                     198 	ld	(hl), b
+      000009 AF                     199 	xor	a, a
+      00000A 23                     200 	inc	hl
+      00000B 32                     201 	ld	(hl-), a
+      00000C 7E                     202 	ld	a, (hl)
+      00000D E6 02                  203 	and	a, #0x02
+      00000F 5F                     204 	ld	e, a
+      000010 16 00                  205 	ld	d, #0x00
+      000012 CB 3A                  206 	srl	d
+      000014 CB 1B                  207 	rr	e
+      000016 7B                     208 	ld	a,e
+      000017 87                     209 	add	a, a
+      000018 83                     210 	add	a, e
+      000019 87                     211 	add	a, a
+      00001A 83                     212 	add	a, e
+      00001B 87                     213 	add	a, a
+      00001C 83                     214 	add	a, e
+      00001D 87                     215 	add	a, a
+      00001E 83                     216 	add	a, e
+      00001F 87                     217 	add	a, a
+      000020 83                     218 	add	a, e
+      000021 87                     219 	add	a, a
+      000022 83                     220 	add	a, e
+      000023 87                     221 	add	a, a
+      000024 83                     222 	add	a, e
+      000025 4F                     223 	ld	c, a
+      000026 78                     224 	ld	a, b
+      000027 E6 01                  225 	and	a, #0x01
+      000029 81                     226 	add	a, c
+      00002A EAr33r00               227 	ld	(#_pl_x_a),a
+                                    228 ;main.c:42: pl_y_a = -1*( (J_UP & joypad_value)>>2 ) + ( (J_DOWN & joypad_value)>>3 );
+      00002D F8 02                  229 	ldhl	sp,	#2
+      00002F 7E                     230 	ld	a, (hl)
+      000030 E6 04                  231 	and	a, #0x04
+      000032 4F                     232 	ld	c, a
+      000033 06 00                  233 	ld	b, #0x00
+      000035 CB 38                  234 	srl	b
+      000037 CB 19                  235 	rr	c
+      000039 CB 38                  236 	srl	b
+      00003B CB 19                  237 	rr	c
+      00003D 79                     238 	ld	a, c
+      00003E 87                     239 	add	a, a
+      00003F 81                     240 	add	a, c
+      000040 87                     241 	add	a, a
+      000041 81                     242 	add	a, c
+      000042 87                     243 	add	a, a
+      000043 81                     244 	add	a, c
+      000044 87                     245 	add	a, a
+      000045 81                     246 	add	a, c
+      000046 87                     247 	add	a, a
+      000047 81                     248 	add	a, c
+      000048 87                     249 	add	a, a
+      000049 81                     250 	add	a, c
+      00004A 87                     251 	add	a, a
+      00004B 81                     252 	add	a, c
+      00004C 4F                     253 	ld	c, a
+      00004D F8 02                  254 	ldhl	sp,	#2
+      00004F 7E                     255 	ld	a, (hl)
+      000050 E6 08                  256 	and	a, #0x08
+      000052 5F                     257 	ld	e, a
+      000053 16 00                  258 	ld	d, #0x00
+      000055 CB 3A                  259 	srl	d
+      000057 CB 1B                  260 	rr	e
+      000059 CB 3A                  261 	srl	d
+      00005B CB 1B                  262 	rr	e
+      00005D CB 3A                  263 	srl	d
+      00005F CB 1B                  264 	rr	e
+      000061 7B                     265 	ld	a, e
+      000062 81                     266 	add	a, c
+      000063 EAr34r00               267 	ld	(#_pl_y_a),a
+                                    268 ;main.c:44: pl_x_v += pl_x_a;
+      000066 FAr31r00               269 	ld	a, (#_pl_x_v)
+      000069 21r33r00               270 	ld	hl, #_pl_x_a
+      00006C 86                     271 	add	a, (hl)
+      00006D EAr31r00               272 	ld	(#_pl_x_v),a
+                                    273 ;main.c:46: pl_x_v = max_velocity;
+      000070 FAr29r00               274 	ld	a, (#_max_velocity)
+      000073 F8 00                  275 	ldhl	sp,	#0
+      000075 77                     276 	ld	(hl), a
+                                    277 ;main.c:45: if(pl_x_v > max_velocity){
+      000076 21r31r00               278 	ld	hl, #_pl_x_v
+      000079 5E                     279 	ld	e, (hl)
+      00007A 21r29r00               280 	ld	hl, #_max_velocity
+      00007D 56                     281 	ld	d, (hl)
+      00007E 7E                     282 	ld	a, (hl)
+      00007F 21r31r00               283 	ld	hl, #_pl_x_v
+      000082 96                     284 	sub	a, (hl)
+      000083 CB 7B                  285 	bit	7, e
+      000085 28 07                  286 	jr	Z, 00162$
+      000087 CB 7A                  287 	bit	7, d
+      000089 20 08                  288 	jr	NZ, 00163$
+      00008B BF                     289 	cp	a, a
+      00008C 18 05                  290 	jr	00163$
+      00008E                        291 00162$:
+      00008E CB 7A                  292 	bit	7, d
+      000090 28 01                  293 	jr	Z, 00163$
+      000092 37                     294 	scf
+      000093                        295 00163$:
+      000093 30 06                  296 	jr	NC, 00102$
+                                    297 ;main.c:46: pl_x_v = max_velocity;
+      000095 F8 00                  298 	ldhl	sp,	#0
+      000097 7E                     299 	ld	a, (hl)
+      000098 EAr31r00               300 	ld	(#_pl_x_v),a
+      00009B                        301 00102$:
+                                    302 ;main.c:48: if(pl_x_v < -max_velocity){
+      00009B FAr29r00               303 	ld	a, (#_max_velocity)
+      00009E 4F                     304 	ld	c, a
+      00009F 17                     305 	rla
+      0000A0 9F                     306 	sbc	a, a
+      0000A1 47                     307 	ld	b, a
+      0000A2 11 00 00               308 	ld	de, #0x0000
+      0000A5 7B                     309 	ld	a, e
+      0000A6 91                     310 	sub	a, c
+      0000A7 5F                     311 	ld	e, a
+      0000A8 7A                     312 	ld	a, d
+      0000A9 98                     313 	sbc	a, b
+      0000AA F8 02                  314 	ldhl	sp,	#2
+      0000AC 32                     315 	ld	(hl-), a
+      0000AD 73                     316 	ld	(hl), e
+      0000AE FAr31r00               317 	ld	a, (#_pl_x_v)
+      0000B1 4F                     318 	ld	c, a
+      0000B2 17                     319 	rla
+      0000B3 9F                     320 	sbc	a, a
+      0000B4 47                     321 	ld	b, a
+                                    322 ;main.c:49: pl_x_v = -max_velocity;
+      0000B5 AF                     323 	xor	a, a
+      0000B6 21r29r00               324 	ld	hl, #_max_velocity
+      0000B9 96                     325 	sub	a, (hl)
+      0000BA F8 03                  326 	ldhl	sp,	#3
+                                    327 ;main.c:48: if(pl_x_v < -max_velocity){
+      0000BC 32                     328 	ld	(hl-), a
+      0000BD 2B                     329 	dec	hl
+      0000BE 79                     330 	ld	a, c
+      0000BF 96                     331 	sub	a, (hl)
+      0000C0 23                     332 	inc	hl
+      0000C1 78                     333 	ld	a, b
+      0000C2 9E                     334 	sbc	a, (hl)
+      0000C3 78                     335 	ld	a, b
+      0000C4 57                     336 	ld	d, a
+      0000C5 CB 7E                  337 	bit	7, (hl)
+      0000C7 28 07                  338 	jr	Z, 00164$
+      0000C9 CB 7A                  339 	bit	7, d
+      0000CB 20 08                  340 	jr	NZ, 00165$
+      0000CD BF                     341 	cp	a, a
+      0000CE 18 05                  342 	jr	00165$
+      0000D0                        343 00164$:
+      0000D0 CB 7A                  344 	bit	7, d
+      0000D2 28 01                  345 	jr	Z, 00165$
+      0000D4 37                     346 	scf
+      0000D5                        347 00165$:
+      0000D5 30 06                  348 	jr	NC, 00104$
+                                    349 ;main.c:49: pl_x_v = -max_velocity;
+      0000D7 F8 03                  350 	ldhl	sp,	#3
+      0000D9 7E                     351 	ld	a, (hl)
+      0000DA EAr31r00               352 	ld	(#_pl_x_v),a
+      0000DD                        353 00104$:
+                                    354 ;main.c:51: pl_y_v += pl_y_a;
+      0000DD FAr32r00               355 	ld	a, (#_pl_y_v)
+      0000E0 21r34r00               356 	ld	hl, #_pl_y_a
+      0000E3 86                     357 	add	a, (hl)
+      0000E4 21r32r00               358 	ld	hl, #_pl_y_v
+      0000E7 77                     359 	ld	(hl), a
+                                    360 ;main.c:52: if(pl_y_v > max_velocity){
+      0000E8 5E                     361 	ld	e, (hl)
+      0000E9 21r29r00               362 	ld	hl, #_max_velocity
+      0000EC 56                     363 	ld	d, (hl)
+      0000ED 7E                     364 	ld	a, (hl)
+      0000EE 21r32r00               365 	ld	hl, #_pl_y_v
+      0000F1 96                     366 	sub	a, (hl)
+      0000F2 CB 7B                  367 	bit	7, e
+      0000F4 28 07                  368 	jr	Z, 00166$
+      0000F6 CB 7A                  369 	bit	7, d
+      0000F8 20 08                  370 	jr	NZ, 00167$
+      0000FA BF                     371 	cp	a, a
+      0000FB 18 05                  372 	jr	00167$
+      0000FD                        373 00166$:
+      0000FD CB 7A                  374 	bit	7, d
+      0000FF 28 01                  375 	jr	Z, 00167$
+      000101 37                     376 	scf
+      000102                        377 00167$:
+      000102 30 06                  378 	jr	NC, 00106$
+                                    379 ;main.c:53: pl_y_v = max_velocity;
+      000104 F8 00                  380 	ldhl	sp,	#0
+      000106 7E                     381 	ld	a, (hl)
+      000107 EAr32r00               382 	ld	(#_pl_y_v),a
+      00010A                        383 00106$:
+                                    384 ;main.c:55: if(pl_y_v < -max_velocity){
+      00010A FAr32r00               385 	ld	a, (#_pl_y_v)
+      00010D 4F                     386 	ld	c, a
+      00010E 17                     387 	rla
+      00010F 9F                     388 	sbc	a, a
+      000110 47                     389 	ld	b, a
+      000111 F8 01                  390 	ldhl	sp,	#1
+      000113 79                     391 	ld	a, c
+      000114 96                     392 	sub	a, (hl)
+      000115 23                     393 	inc	hl
+      000116 78                     394 	ld	a, b
+      000117 9E                     395 	sbc	a, (hl)
+      000118 78                     396 	ld	a, b
+      000119 57                     397 	ld	d, a
+      00011A CB 7E                  398 	bit	7, (hl)
+      00011C 28 07                  399 	jr	Z, 00168$
+      00011E CB 7A                  400 	bit	7, d
+      000120 20 08                  401 	jr	NZ, 00169$
+      000122 BF                     402 	cp	a, a
+      000123 18 05                  403 	jr	00169$
+      000125                        404 00168$:
+      000125 CB 7A                  405 	bit	7, d
+      000127 28 01                  406 	jr	Z, 00169$
+      000129 37                     407 	scf
+      00012A                        408 00169$:
+      00012A 30 06                  409 	jr	NC, 00108$
+                                    410 ;main.c:56: pl_y_v = -max_velocity;
+      00012C F8 03                  411 	ldhl	sp,	#3
+      00012E 7E                     412 	ld	a, (hl)
+      00012F EAr32r00               413 	ld	(#_pl_y_v),a
+      000132                        414 00108$:
+                                    415 ;main.c:58: pl_expanded_x_position += pl_x_v;
+      000132 FAr31r00               416 	ld	a, (#_pl_x_v)
+      000135 4F                     417 	ld	c, a
+      000136 17                     418 	rla
+      000137 9F                     419 	sbc	a, a
+      000138 47                     420 	ld	b, a
+      000139 21r2Br00               421 	ld	hl, #_pl_expanded_x_position
+      00013C 7E                     422 	ld	a, (hl)
+      00013D 81                     423 	add	a, c
+      00013E 22                     424 	ld	(hl+), a
+      00013F 7E                     425 	ld	a, (hl)
+      000140 88                     426 	adc	a, b
+      000141 77                     427 	ld	(hl), a
+                                    428 ;main.c:59: pl_actual_x_position = pl_expanded_x_position/position_divisor;
+      000142 FAr2Ar00               429 	ld	a, (#_position_divisor)
+      000145 4F                     430 	ld	c, a
+      000146 17                     431 	rla
+      000147 9F                     432 	sbc	a, a
+      000148 47                     433 	ld	b, a
+      000149 C5                     434 	push	bc
+      00014A C5                     435 	push	bc
+      00014B 21r2Br00               436 	ld	hl, #_pl_expanded_x_position
+      00014E 2A                     437 	ld	a, (hl+)
+      00014F 66                     438 	ld	h, (hl)
+      000150 6F                     439 	ld	l, a
+      000151 E5                     440 	push	hl
+      000152 CDr00r00               441 	call	__divuint
+      000155 E8 04                  442 	add	sp, #4
+      000157 C1                     443 	pop	bc
+      000158 21r2Fr00               444 	ld	hl, #_pl_actual_x_position
+      00015B 73                     445 	ld	(hl), e
+                                    446 ;main.c:60: pl_expanded_y_position += pl_y_v;
+      00015C FAr32r00               447 	ld	a, (#_pl_y_v)
+      00015F 5F                     448 	ld	e, a
+      000160 17                     449 	rla
+      000161 9F                     450 	sbc	a, a
+      000162 57                     451 	ld	d, a
+      000163 21r2Dr00               452 	ld	hl, #_pl_expanded_y_position
+      000166 7E                     453 	ld	a, (hl)
+      000167 83                     454 	add	a, e
+      000168 22                     455 	ld	(hl+), a
+      000169 7E                     456 	ld	a, (hl)
+      00016A 8A                     457 	adc	a, d
+      00016B 77                     458 	ld	(hl), a
+                                    459 ;main.c:61: pl_actual_y_position = pl_expanded_y_position/position_divisor;
+      00016C C5                     460 	push	bc
+      00016D 2B                     461 	dec	hl
+      00016E 2A                     462 	ld	a, (hl+)
+      00016F 66                     463 	ld	h, (hl)
+      000170 6F                     464 	ld	l, a
+      000171 E5                     465 	push	hl
+      000172 CDr00r00               466 	call	__divuint
+      000175 E8 04                  467 	add	sp, #4
+      000177 21r30r00               468 	ld	hl, #_pl_actual_y_position
+      00017A 73                     469 	ld	(hl), e
+                                    470 ;main.c:63: if(pl_actual_x_position <= wall_left || pl_actual_x_position >= wall_right){
+      00017B FAr21r00               471 	ld	a, (#_wall_left)
+      00017E 21r2Fr00               472 	ld	hl, #_pl_actual_x_position
+      000181 96                     473 	sub	a, (hl)
+      000182 3E 00                  474 	ld	a, #0x00
+      000184 17                     475 	rla
+      000185 4F                     476 	ld	c, a
+      000186 CB 41                  477 	bit	0, c
+      000188 28 07                  478 	jr	Z, 00109$
+      00018A 7E                     479 	ld	a, (hl)
+      00018B 21r20r00               480 	ld	hl, #_wall_right
+      00018E 96                     481 	sub	a, (hl)
+      00018F 38 15                  482 	jr	C, 00110$
+      000191                        483 00109$:
+                                    484 ;main.c:64: pl_x_v = -pl_x_v;
+      000191 AF                     485 	xor	a, a
+      000192 21r31r00               486 	ld	hl, #_pl_x_v
+      000195 96                     487 	sub	a, (hl)
+      000196 77                     488 	ld	(hl), a
+                                    489 ;main.c:65: pl_actual_x_position = pl_actual_x_position <= wall_left ? wall_left : wall_right;
+      000197 CB 41                  490 	bit	0, c
+      000199 20 05                  491 	jr	NZ, 00118$
+      00019B FAr21r00               492 	ld	a, (#_wall_left)
+      00019E 18 03                  493 	jr	00119$
+      0001A0                        494 00118$:
+      0001A0 FAr20r00               495 	ld	a, (#_wall_right)
+      0001A3                        496 00119$:
+      0001A3 EAr2Fr00               497 	ld	(#_pl_actual_x_position),a
+      0001A6                        498 00110$:
+                                    499 ;main.c:67: if(pl_actual_y_position <= wall_up || pl_actual_y_position >= wall_down){
+      0001A6 FAr22r00               500 	ld	a, (#_wall_up)
+      0001A9 21r30r00               501 	ld	hl, #_pl_actual_y_position
+      0001AC 96                     502 	sub	a, (hl)
+      0001AD 3E 00                  503 	ld	a, #0x00
+      0001AF 17                     504 	rla
+      0001B0 4F                     505 	ld	c, a
+      0001B1 CB 41                  506 	bit	0, c
+      0001B3 28 07                  507 	jr	Z, 00112$
+      0001B5 7E                     508 	ld	a, (hl)
+      0001B6 21r23r00               509 	ld	hl, #_wall_down
+      0001B9 96                     510 	sub	a, (hl)
+      0001BA 38 15                  511 	jr	C, 00113$
+      0001BC                        512 00112$:
+                                    513 ;main.c:68: pl_y_v = -pl_y_v;
+      0001BC AF                     514 	xor	a, a
+      0001BD 21r32r00               515 	ld	hl, #_pl_y_v
+      0001C0 96                     516 	sub	a, (hl)
+      0001C1 77                     517 	ld	(hl), a
+                                    518 ;main.c:69: pl_actual_y_position = pl_actual_y_position <= wall_up ? wall_up : wall_down;
+      0001C2 CB 41                  519 	bit	0, c
+      0001C4 20 05                  520 	jr	NZ, 00120$
+      0001C6 FAr22r00               521 	ld	a, (#_wall_up)
+      0001C9 18 03                  522 	jr	00121$
+      0001CB                        523 00120$:
+      0001CB FAr23r00               524 	ld	a, (#_wall_down)
+      0001CE                        525 00121$:
+      0001CE EAr30r00               526 	ld	(#_pl_actual_y_position),a
+      0001D1                        527 00113$:
+                                    528 ;main.c:71: move_sprite(0, pl_actual_x_position, pl_actual_y_position);
+      0001D1 21r30r00               529 	ld	hl, #_pl_actual_y_position
+      0001D4 46                     530 	ld	b, (hl)
+      0001D5 21r2Fr00               531 	ld	hl, #_pl_actual_x_position
+      0001D8 4E                     532 	ld	c, (hl)
+                                    533 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:652: OAM_item_t * itm = &shadow_OAM[nb];
+      0001D9 21r00r00               534 	ld	hl, #_shadow_OAM
+                                    535 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:653: itm->y=y, itm->x=x; 
+      0001DC 78                     536 	ld	a, b
+      0001DD 22                     537 	ld	(hl+), a
+      0001DE 71                     538 	ld	(hl), c
+                                    539 ;main.c:71: move_sprite(0, pl_actual_x_position, pl_actual_y_position);
+                                    540 ;main.c:72: }
+      0001DF E8 04                  541 	add	sp, #4
+      0001E1 C9                     542 	ret
+                                    543 ;main.c:74: void move_enemy(){
+                                    544 ;	---------------------------------
+                                    545 ; Function move_enemy
+                                    546 ; ---------------------------------
+      0001E2                        547 _move_enemy::
+      0001E2 E8 FC                  548 	add	sp, #-4
+                                    549 ;main.c:80: en_x_v += en_x_a;
+      0001E4 FAr3Br00               550 	ld	a, (#_en_x_v)
+      0001E7 21r3Dr00               551 	ld	hl, #_en_x_a
+      0001EA 86                     552 	add	a, (hl)
+      0001EB EAr3Br00               553 	ld	(#_en_x_v),a
+                                    554 ;main.c:82: en_x_v = max_velocity;
+      0001EE FAr29r00               555 	ld	a, (#_max_velocity)
+      0001F1 F8 00                  556 	ldhl	sp,	#0
+      0001F3 77                     557 	ld	(hl), a
+                                    558 ;main.c:81: if(en_x_v > max_velocity){
+      0001F4 21r3Br00               559 	ld	hl, #_en_x_v
+      0001F7 5E                     560 	ld	e, (hl)
+      0001F8 21r29r00               561 	ld	hl, #_max_velocity
+      0001FB 56                     562 	ld	d, (hl)
+      0001FC 7E                     563 	ld	a, (hl)
+      0001FD 21r3Br00               564 	ld	hl, #_en_x_v
+      000200 96                     565 	sub	a, (hl)
+      000201 CB 7B                  566 	bit	7, e
+      000203 28 07                  567 	jr	Z, 00162$
+      000205 CB 7A                  568 	bit	7, d
+      000207 20 08                  569 	jr	NZ, 00163$
+      000209 BF                     570 	cp	a, a
+      00020A 18 05                  571 	jr	00163$
+      00020C                        572 00162$:
+      00020C CB 7A                  573 	bit	7, d
+      00020E 28 01                  574 	jr	Z, 00163$
+      000210 37                     575 	scf
+      000211                        576 00163$:
+      000211 30 06                  577 	jr	NC, 00102$
+                                    578 ;main.c:82: en_x_v = max_velocity;
+      000213 F8 00                  579 	ldhl	sp,	#0
+      000215 7E                     580 	ld	a, (hl)
+      000216 EAr3Br00               581 	ld	(#_en_x_v),a
+      000219                        582 00102$:
+                                    583 ;main.c:84: if(en_x_v < -max_velocity){
+      000219 FAr29r00               584 	ld	a, (#_max_velocity)
+      00021C 4F                     585 	ld	c, a
+      00021D 17                     586 	rla
+      00021E 9F                     587 	sbc	a, a
+      00021F 47                     588 	ld	b, a
+      000220 11 00 00               589 	ld	de, #0x0000
+      000223 7B                     590 	ld	a, e
+      000224 91                     591 	sub	a, c
+      000225 5F                     592 	ld	e, a
+      000226 7A                     593 	ld	a, d
+      000227 98                     594 	sbc	a, b
+      000228 F8 02                  595 	ldhl	sp,	#2
+      00022A 32                     596 	ld	(hl-), a
+      00022B 73                     597 	ld	(hl), e
+      00022C FAr3Br00               598 	ld	a, (#_en_x_v)
+      00022F 4F                     599 	ld	c, a
+      000230 17                     600 	rla
+      000231 9F                     601 	sbc	a, a
+      000232 47                     602 	ld	b, a
+                                    603 ;main.c:85: en_x_v = -max_velocity;
+      000233 AF                     604 	xor	a, a
+      000234 21r29r00               605 	ld	hl, #_max_velocity
+      000237 96                     606 	sub	a, (hl)
+      000238 F8 03                  607 	ldhl	sp,	#3
+                                    608 ;main.c:84: if(en_x_v < -max_velocity){
+      00023A 32                     609 	ld	(hl-), a
+      00023B 2B                     610 	dec	hl
+      00023C 79                     611 	ld	a, c
+      00023D 96                     612 	sub	a, (hl)
+      00023E 23                     613 	inc	hl
+      00023F 78                     614 	ld	a, b
+      000240 9E                     615 	sbc	a, (hl)
+      000241 78                     616 	ld	a, b
+      000242 57                     617 	ld	d, a
+      000243 CB 7E                  618 	bit	7, (hl)
+      000245 28 07                  619 	jr	Z, 00164$
+      000247 CB 7A                  620 	bit	7, d
+      000249 20 08                  621 	jr	NZ, 00165$
+      00024B BF                     622 	cp	a, a
+      00024C 18 05                  623 	jr	00165$
+      00024E                        624 00164$:
+      00024E CB 7A                  625 	bit	7, d
+      000250 28 01                  626 	jr	Z, 00165$
+      000252 37                     627 	scf
+      000253                        628 00165$:
+      000253 30 06                  629 	jr	NC, 00104$
+                                    630 ;main.c:85: en_x_v = -max_velocity;
+      000255 F8 03                  631 	ldhl	sp,	#3
+      000257 7E                     632 	ld	a, (hl)
+      000258 EAr3Br00               633 	ld	(#_en_x_v),a
+      00025B                        634 00104$:
+                                    635 ;main.c:87: en_y_v += en_y_a;
+      00025B FAr3Cr00               636 	ld	a, (#_en_y_v)
+      00025E 21r3Er00               637 	ld	hl, #_en_y_a
+      000261 86                     638 	add	a, (hl)
+      000262 21r3Cr00               639 	ld	hl, #_en_y_v
+      000265 77                     640 	ld	(hl), a
+                                    641 ;main.c:88: if(en_y_v > max_velocity){
+      000266 5E                     642 	ld	e, (hl)
+      000267 21r29r00               643 	ld	hl, #_max_velocity
+      00026A 56                     644 	ld	d, (hl)
+      00026B 7E                     645 	ld	a, (hl)
+      00026C 21r3Cr00               646 	ld	hl, #_en_y_v
+      00026F 96                     647 	sub	a, (hl)
+      000270 CB 7B                  648 	bit	7, e
+      000272 28 07                  649 	jr	Z, 00166$
+      000274 CB 7A                  650 	bit	7, d
+      000276 20 08                  651 	jr	NZ, 00167$
+      000278 BF                     652 	cp	a, a
+      000279 18 05                  653 	jr	00167$
+      00027B                        654 00166$:
+      00027B CB 7A                  655 	bit	7, d
+      00027D 28 01                  656 	jr	Z, 00167$
+      00027F 37                     657 	scf
+      000280                        658 00167$:
+      000280 30 06                  659 	jr	NC, 00106$
+                                    660 ;main.c:89: en_y_v = max_velocity;
+      000282 F8 00                  661 	ldhl	sp,	#0
+      000284 7E                     662 	ld	a, (hl)
+      000285 EAr3Cr00               663 	ld	(#_en_y_v),a
+      000288                        664 00106$:
+                                    665 ;main.c:91: if(en_y_v < -max_velocity){
+      000288 FAr3Cr00               666 	ld	a, (#_en_y_v)
+      00028B 4F                     667 	ld	c, a
+      00028C 17                     668 	rla
+      00028D 9F                     669 	sbc	a, a
+      00028E 47                     670 	ld	b, a
+      00028F F8 01                  671 	ldhl	sp,	#1
+      000291 79                     672 	ld	a, c
+      000292 96                     673 	sub	a, (hl)
+      000293 23                     674 	inc	hl
+      000294 78                     675 	ld	a, b
+      000295 9E                     676 	sbc	a, (hl)
+      000296 78                     677 	ld	a, b
+      000297 57                     678 	ld	d, a
+      000298 CB 7E                  679 	bit	7, (hl)
+      00029A 28 07                  680 	jr	Z, 00168$
+      00029C CB 7A                  681 	bit	7, d
+      00029E 20 08                  682 	jr	NZ, 00169$
+      0002A0 BF                     683 	cp	a, a
+      0002A1 18 05                  684 	jr	00169$
+      0002A3                        685 00168$:
+      0002A3 CB 7A                  686 	bit	7, d
+      0002A5 28 01                  687 	jr	Z, 00169$
+      0002A7 37                     688 	scf
+      0002A8                        689 00169$:
+      0002A8 30 06                  690 	jr	NC, 00108$
+                                    691 ;main.c:92: en_y_v = -max_velocity;
+      0002AA F8 03                  692 	ldhl	sp,	#3
+      0002AC 7E                     693 	ld	a, (hl)
+      0002AD EAr3Cr00               694 	ld	(#_en_y_v),a
+      0002B0                        695 00108$:
+                                    696 ;main.c:94: en_expanded_x_position += en_x_v;
+      0002B0 FAr3Br00               697 	ld	a, (#_en_x_v)
+      0002B3 4F                     698 	ld	c, a
+      0002B4 17                     699 	rla
+      0002B5 9F                     700 	sbc	a, a
+      0002B6 47                     701 	ld	b, a
+      0002B7 21r35r00               702 	ld	hl, #_en_expanded_x_position
+      0002BA 7E                     703 	ld	a, (hl)
+      0002BB 81                     704 	add	a, c
+      0002BC 22                     705 	ld	(hl+), a
+      0002BD 7E                     706 	ld	a, (hl)
+      0002BE 88                     707 	adc	a, b
+      0002BF 77                     708 	ld	(hl), a
+                                    709 ;main.c:95: en_actual_x_position = en_expanded_x_position/position_divisor;
+      0002C0 FAr2Ar00               710 	ld	a, (#_position_divisor)
+      0002C3 4F                     711 	ld	c, a
+      0002C4 17                     712 	rla
+      0002C5 9F                     713 	sbc	a, a
+      0002C6 47                     714 	ld	b, a
+      0002C7 C5                     715 	push	bc
+      0002C8 C5                     716 	push	bc
+      0002C9 21r35r00               717 	ld	hl, #_en_expanded_x_position
+      0002CC 2A                     718 	ld	a, (hl+)
+      0002CD 66                     719 	ld	h, (hl)
+      0002CE 6F                     720 	ld	l, a
+      0002CF E5                     721 	push	hl
+      0002D0 CDr00r00               722 	call	__divuint
+      0002D3 E8 04                  723 	add	sp, #4
+      0002D5 C1                     724 	pop	bc
+      0002D6 21r39r00               725 	ld	hl, #_en_actual_x_position
+      0002D9 73                     726 	ld	(hl), e
+                                    727 ;main.c:96: en_expanded_y_position += en_y_v;
+      0002DA FAr3Cr00               728 	ld	a, (#_en_y_v)
+      0002DD 5F                     729 	ld	e, a
+      0002DE 17                     730 	rla
+      0002DF 9F                     731 	sbc	a, a
+      0002E0 57                     732 	ld	d, a
+      0002E1 21r37r00               733 	ld	hl, #_en_expanded_y_position
+      0002E4 7E                     734 	ld	a, (hl)
+      0002E5 83                     735 	add	a, e
+      0002E6 22                     736 	ld	(hl+), a
+      0002E7 7E                     737 	ld	a, (hl)
+      0002E8 8A                     738 	adc	a, d
+      0002E9 77                     739 	ld	(hl), a
+                                    740 ;main.c:97: en_actual_y_position = en_expanded_y_position/position_divisor;
+      0002EA C5                     741 	push	bc
+      0002EB 2B                     742 	dec	hl
+      0002EC 2A                     743 	ld	a, (hl+)
+      0002ED 66                     744 	ld	h, (hl)
+      0002EE 6F                     745 	ld	l, a
+      0002EF E5                     746 	push	hl
+      0002F0 CDr00r00               747 	call	__divuint
+      0002F3 E8 04                  748 	add	sp, #4
+      0002F5 21r3Ar00               749 	ld	hl, #_en_actual_y_position
+      0002F8 73                     750 	ld	(hl), e
+                                    751 ;main.c:99: if(en_actual_x_position <= wall_left || en_actual_x_position >= wall_right){
+      0002F9 FAr21r00               752 	ld	a, (#_wall_left)
+      0002FC 21r39r00               753 	ld	hl, #_en_actual_x_position
+      0002FF 96                     754 	sub	a, (hl)
+      000300 3E 00                  755 	ld	a, #0x00
+      000302 17                     756 	rla
+      000303 4F                     757 	ld	c, a
+      000304 CB 41                  758 	bit	0, c
+      000306 28 07                  759 	jr	Z, 00109$
+      000308 7E                     760 	ld	a, (hl)
+      000309 21r20r00               761 	ld	hl, #_wall_right
+      00030C 96                     762 	sub	a, (hl)
+      00030D 38 15                  763 	jr	C, 00110$
+      00030F                        764 00109$:
+                                    765 ;main.c:100: en_x_v = -en_x_v;
+      00030F AF                     766 	xor	a, a
+      000310 21r3Br00               767 	ld	hl, #_en_x_v
+      000313 96                     768 	sub	a, (hl)
+      000314 77                     769 	ld	(hl), a
+                                    770 ;main.c:101: en_actual_x_position = en_actual_x_position <= wall_left ? wall_left : wall_right;
+      000315 CB 41                  771 	bit	0, c
+      000317 20 05                  772 	jr	NZ, 00118$
+      000319 FAr21r00               773 	ld	a, (#_wall_left)
+      00031C 18 03                  774 	jr	00119$
+      00031E                        775 00118$:
+      00031E FAr20r00               776 	ld	a, (#_wall_right)
+      000321                        777 00119$:
+      000321 EAr39r00               778 	ld	(#_en_actual_x_position),a
+      000324                        779 00110$:
+                                    780 ;main.c:103: if(en_actual_y_position <= wall_up || en_actual_y_position >= wall_down){
+      000324 FAr22r00               781 	ld	a, (#_wall_up)
+      000327 21r3Ar00               782 	ld	hl, #_en_actual_y_position
+      00032A 96                     783 	sub	a, (hl)
+      00032B 3E 00                  784 	ld	a, #0x00
+      00032D 17                     785 	rla
+      00032E 4F                     786 	ld	c, a
+      00032F CB 41                  787 	bit	0, c
+      000331 28 07                  788 	jr	Z, 00112$
+      000333 7E                     789 	ld	a, (hl)
+      000334 21r23r00               790 	ld	hl, #_wall_down
+      000337 96                     791 	sub	a, (hl)
+      000338 38 15                  792 	jr	C, 00113$
+      00033A                        793 00112$:
+                                    794 ;main.c:104: en_y_v = -en_y_v;
+      00033A AF                     795 	xor	a, a
+      00033B 21r3Cr00               796 	ld	hl, #_en_y_v
+      00033E 96                     797 	sub	a, (hl)
+      00033F 77                     798 	ld	(hl), a
+                                    799 ;main.c:105: en_actual_y_position = en_actual_y_position <= wall_up ? wall_up : wall_down;
+      000340 CB 41                  800 	bit	0, c
+      000342 20 05                  801 	jr	NZ, 00120$
+      000344 FAr22r00               802 	ld	a, (#_wall_up)
+      000347 18 03                  803 	jr	00121$
+      000349                        804 00120$:
+      000349 FAr23r00               805 	ld	a, (#_wall_down)
+      00034C                        806 00121$:
+      00034C EAr3Ar00               807 	ld	(#_en_actual_y_position),a
+      00034F                        808 00113$:
+                                    809 ;main.c:107: move_sprite(1, en_actual_x_position, en_actual_y_position);
+      00034F 21r3Ar00               810 	ld	hl, #_en_actual_y_position
+      000352 46                     811 	ld	b, (hl)
+      000353 21r39r00               812 	ld	hl, #_en_actual_x_position
+      000356 4E                     813 	ld	c, (hl)
+                                    814 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:652: OAM_item_t * itm = &shadow_OAM[nb];
+      000357 21r04r00               815 	ld	hl, #(_shadow_OAM + 0x0004)
+                                    816 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:653: itm->y=y, itm->x=x; 
+      00035A 78                     817 	ld	a, b
+      00035B 22                     818 	ld	(hl+), a
+      00035C 71                     819 	ld	(hl), c
+                                    820 ;main.c:107: move_sprite(1, en_actual_x_position, en_actual_y_position);
+                                    821 ;main.c:108: }
+      00035D E8 04                  822 	add	sp, #4
+      00035F C9                     823 	ret
+                                    824 ;main.c:110: void main(){
+                                    825 ;	---------------------------------
+                                    826 ; Function main
+                                    827 ; ---------------------------------
+      000360                        828 _main::
+      000360 E8 FE                  829 	add	sp, #-2
+                                    830 ;main.c:112: pl_expanded_x_position = position_divisor*88;
+      000362 FAr2Ar00               831 	ld	a, (#_position_divisor)
+      000365 4F                     832 	ld	c, a
+      000366 17                     833 	rla
+      000367 9F                     834 	sbc	a, a
+      000368 47                     835 	ld	b, a
+      000369 69                     836 	ld	l, c
+      00036A 60                     837 	ld	h, b
+      00036B 29                     838 	add	hl, hl
+      00036C 29                     839 	add	hl, hl
+      00036D 09                     840 	add	hl, bc
+      00036E 29                     841 	add	hl, hl
+      00036F 09                     842 	add	hl, bc
+      000370 29                     843 	add	hl, hl
+      000371 29                     844 	add	hl, hl
+      000372 29                     845 	add	hl, hl
+      000373 7D                     846 	ld	a, l
+      000374 54                     847 	ld	d, h
+      000375 21r2Br00               848 	ld	hl, #_pl_expanded_x_position
+      000378 22                     849 	ld	(hl+), a
+      000379 72                     850 	ld	(hl), d
+                                    851 ;main.c:113: pl_expanded_y_position = position_divisor*78;
+      00037A 69                     852 	ld	l, c
+      00037B 60                     853 	ld	h, b
+      00037C 29                     854 	add	hl, hl
+      00037D 29                     855 	add	hl, hl
+      00037E 29                     856 	add	hl, hl
+      00037F 09                     857 	add	hl, bc
+      000380 29                     858 	add	hl, hl
+      000381 09                     859 	add	hl, bc
+      000382 29                     860 	add	hl, hl
+      000383 09                     861 	add	hl, bc
+      000384 29                     862 	add	hl, hl
+      000385 7D                     863 	ld	a, l
+      000386 54                     864 	ld	d, h
+      000387 21r2Dr00               865 	ld	hl, #_pl_expanded_y_position
+      00038A 22                     866 	ld	(hl+), a
+      00038B 72                     867 	ld	(hl), d
+                                    868 ;main.c:114: pl_actual_x_position = pl_expanded_x_position/position_divisor;
+      00038C FAr2Ar00               869 	ld	a, (#_position_divisor)
+      00038F F8 00                  870 	ldhl	sp,	#0
+      000391 77                     871 	ld	(hl), a
+      000392 17                     872 	rla
+      000393 9F                     873 	sbc	a, a
+      000394 23                     874 	inc	hl
+      000395 77                     875 	ld	(hl), a
+      000396 C5                     876 	push	bc
+      000397 2B                     877 	dec	hl
+      000398 2A                     878 	ld	a, (hl+)
+      000399 66                     879 	ld	h, (hl)
+      00039A 6F                     880 	ld	l, a
+      00039B E5                     881 	push	hl
+      00039C 21r2Br00               882 	ld	hl, #_pl_expanded_x_position
+      00039F 2A                     883 	ld	a, (hl+)
+      0003A0 66                     884 	ld	h, (hl)
+      0003A1 6F                     885 	ld	l, a
+      0003A2 E5                     886 	push	hl
+      0003A3 CDr00r00               887 	call	__divuint
+      0003A6 E8 04                  888 	add	sp, #4
+      0003A8 C1                     889 	pop	bc
+      0003A9 21r2Fr00               890 	ld	hl, #_pl_actual_x_position
+      0003AC 73                     891 	ld	(hl), e
+                                    892 ;main.c:115: pl_actual_y_position = pl_expanded_y_position/position_divisor;
+      0003AD C5                     893 	push	bc
+      0003AE F8 02                  894 	ldhl	sp,	#2
+      0003B0 2A                     895 	ld	a, (hl+)
+      0003B1 66                     896 	ld	h, (hl)
+      0003B2 6F                     897 	ld	l, a
+      0003B3 E5                     898 	push	hl
+      0003B4 21r2Dr00               899 	ld	hl, #_pl_expanded_y_position
+      0003B7 2A                     900 	ld	a, (hl+)
+      0003B8 66                     901 	ld	h, (hl)
+      0003B9 6F                     902 	ld	l, a
+      0003BA E5                     903 	push	hl
+      0003BB CDr00r00               904 	call	__divuint
+      0003BE E8 04                  905 	add	sp, #4
+      0003C0 C1                     906 	pop	bc
+      0003C1 21r30r00               907 	ld	hl, #_pl_actual_y_position
+      0003C4 73                     908 	ld	(hl), e
+                                    909 ;main.c:117: en_expanded_x_position = position_divisor*73;
+      0003C5 69                     910 	ld	l, c
+      0003C6 60                     911 	ld	h, b
+      0003C7 29                     912 	add	hl, hl
+      0003C8 29                     913 	add	hl, hl
+      0003C9 29                     914 	add	hl, hl
+      0003CA 09                     915 	add	hl, bc
+      0003CB 29                     916 	add	hl, hl
+      0003CC 29                     917 	add	hl, hl
+      0003CD 29                     918 	add	hl, hl
+      0003CE 09                     919 	add	hl, bc
+      0003CF 7D                     920 	ld	a, l
+      0003D0 54                     921 	ld	d, h
+      0003D1 21r35r00               922 	ld	hl, #_en_expanded_x_position
+      0003D4 22                     923 	ld	(hl+), a
+      0003D5 72                     924 	ld	(hl), d
+                                    925 ;main.c:118: en_expanded_y_position = position_divisor*89;
+      0003D6 69                     926 	ld	l, c
+      0003D7 60                     927 	ld	h, b
+      0003D8 29                     928 	add	hl, hl
+      0003D9 29                     929 	add	hl, hl
+      0003DA 09                     930 	add	hl, bc
+      0003DB 29                     931 	add	hl, hl
+      0003DC 09                     932 	add	hl, bc
+      0003DD 29                     933 	add	hl, hl
+      0003DE 29                     934 	add	hl, hl
+      0003DF 29                     935 	add	hl, hl
+      0003E0 09                     936 	add	hl, bc
+      0003E1 7D                     937 	ld	a, l
+      0003E2 54                     938 	ld	d, h
+      0003E3 21r37r00               939 	ld	hl, #_en_expanded_y_position
+      0003E6 22                     940 	ld	(hl+), a
+      0003E7 72                     941 	ld	(hl), d
+                                    942 ;main.c:119: en_actual_x_position = en_expanded_x_position/position_divisor;
+      0003E8 E1                     943 	pop	hl
+      0003E9 E5                     944 	push	hl
+      0003EA E5                     945 	push	hl
+      0003EB 21r35r00               946 	ld	hl, #_en_expanded_x_position
+      0003EE 2A                     947 	ld	a, (hl+)
+      0003EF 66                     948 	ld	h, (hl)
+      0003F0 6F                     949 	ld	l, a
+      0003F1 E5                     950 	push	hl
+      0003F2 CDr00r00               951 	call	__divuint
+      0003F5 E8 04                  952 	add	sp, #4
+      0003F7 21r39r00               953 	ld	hl, #_en_actual_x_position
+      0003FA 73                     954 	ld	(hl), e
+                                    955 ;main.c:120: en_actual_y_position = en_expanded_y_position/position_divisor;
+      0003FB E1                     956 	pop	hl
+      0003FC E5                     957 	push	hl
+      0003FD E5                     958 	push	hl
+      0003FE 21r37r00               959 	ld	hl, #_en_expanded_y_position
+      000401 2A                     960 	ld	a, (hl+)
+      000402 66                     961 	ld	h, (hl)
+      000403 6F                     962 	ld	l, a
+      000404 E5                     963 	push	hl
+      000405 CDr00r00               964 	call	__divuint
+      000408 E8 04                  965 	add	sp, #4
+      00040A 21r3Ar00               966 	ld	hl, #_en_actual_y_position
+      00040D 73                     967 	ld	(hl), e
+                                    968 ;main.c:122: set_sprite_data(0, 2, Smiler);
+      00040E 21r00r00               969 	ld	hl, #_Smiler
+      000411 E5                     970 	push	hl
+      000412 3E 02                  971 	ld	a, #0x02
+      000414 F5                     972 	push	af
+      000415 33                     973 	inc	sp
+      000416 AF                     974 	xor	a, a
+      000417 F5                     975 	push	af
+      000418 33                     976 	inc	sp
+      000419 CDr00r00               977 	call	_set_sprite_data
+      00041C E8 04                  978 	add	sp, #4
+                                    979 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:610: shadow_OAM[nb].tile=tile; 
+      00041E 21r02r00               980 	ld	hl, #(_shadow_OAM + 0x0002)
+      000421 36 00                  981 	ld	(hl), #0x00
+      000423 21r06r00               982 	ld	hl, #(_shadow_OAM + 0x0006)
+      000426 36 01                  983 	ld	(hl), #0x01
+                                    984 ;main.c:125: move_sprite(0, pl_actual_x_position, pl_actual_y_position);
+      000428 21r30r00               985 	ld	hl, #_pl_actual_y_position
+      00042B 4E                     986 	ld	c, (hl)
+      00042C 21r2Fr00               987 	ld	hl, #_pl_actual_x_position
+      00042F 46                     988 	ld	b, (hl)
+                                    989 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:652: OAM_item_t * itm = &shadow_OAM[nb];
+      000430 21r00r00               990 	ld	hl, #_shadow_OAM
+                                    991 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:653: itm->y=y, itm->x=x; 
+      000433 79                     992 	ld	a, c
+      000434 22                     993 	ld	(hl+), a
+      000435 70                     994 	ld	(hl), b
+                                    995 ;main.c:126: move_sprite(1, en_actual_x_position, en_actual_y_position);
+      000436 21r3Ar00               996 	ld	hl, #_en_actual_y_position
+      000439 4E                     997 	ld	c, (hl)
+      00043A 21r39r00               998 	ld	hl, #_en_actual_x_position
+      00043D 46                     999 	ld	b, (hl)
+                                   1000 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:652: OAM_item_t * itm = &shadow_OAM[nb];
+      00043E 21r04r00              1001 	ld	hl, #(_shadow_OAM + 0x0004)
+                                   1002 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:653: itm->y=y, itm->x=x; 
+      000441 79                    1003 	ld	a, c
+      000442 22                    1004 	ld	(hl+), a
+      000443 70                    1005 	ld	(hl), b
+                                   1006 ;main.c:127: SHOW_SPRITES;
+      000444 F0r00                 1007 	ldh	a, (_LCDC_REG+0)
+      000446 F6 02                 1008 	or	a, #0x02
+      000448 E0r00                 1009 	ldh	(_LCDC_REG+0),a
+                                   1010 ;main.c:129: while(1){
+      00044A                       1011 00104$:
+                                   1012 ;main.c:130: if(++current_frame >= frame_to_update_motion){
+      00044A 21r25r00              1013 	ld	hl, #_current_frame
+      00044D 34                    1014 	inc	(hl)
+      00044E 20 02                 1015 	jr	NZ, 00122$
+      000450 23                    1016 	inc	hl
+      000451 34                    1017 	inc	(hl)
+      000452                       1018 00122$:
+      000452 11r25r00              1019 	ld	de, #_current_frame
+      000455 21r27r00              1020 	ld	hl, #_frame_to_update_motion
+      000458 1A                    1021 	ld	a, (de)
+      000459 96                    1022 	sub	a, (hl)
+      00045A 23                    1023 	inc	hl
+      00045B 13                    1024 	inc	de
+      00045C 1A                    1025 	ld	a, (de)
+      00045D 9E                    1026 	sbc	a, (hl)
+      00045E 38 EA                 1027 	jr	C, 00104$
+                                   1028 ;main.c:131: current_frame = 0;
+      000460 21r25r00              1029 	ld	hl, #_current_frame
+      000463 3E 00                 1030 	ld	a, #0x00
+      000465 22                    1031 	ld	(hl+), a
+      000466 36 00                 1032 	ld	(hl), #0x00
+                                   1033 ;main.c:132: move_player();
+      000468 CDr00r00              1034 	call	_move_player
+                                   1035 ;main.c:133: move_enemy();
+      00046B CDrE2r01              1036 	call	_move_enemy
+      00046E 18 DA                 1037 	jr	00104$
+                                   1038 ;main.c:136: }
+      000470 E8 02                 1039 	add	sp, #2
+      000472 C9                    1040 	ret
+                                   1041 	.area _CODE
+                                   1042 	.area _CABS (ABS)

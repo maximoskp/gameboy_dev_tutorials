@@ -1,0 +1,124 @@
+                                      1 ;--------------------------------------------------------
+                                      2 ; File Created by SDCC : free open source ANSI-C Compiler
+                                      3 ; Version 4.0.3 #11868 (Mac OS X x86_64)
+                                      4 ;--------------------------------------------------------
+                                      5 	.module main
+                                      6 	.optsdcc -mgbz80
+                                      7 	
+                                      8 ;--------------------------------------------------------
+                                      9 ; Public variables in this module
+                                     10 ;--------------------------------------------------------
+                                     11 	.globl _main
+                                     12 	.globl _set_sprite_data
+                                     13 	.globl _delay
+                                     14 	.globl _Smiler
+                                     15 ;--------------------------------------------------------
+                                     16 ; special function registers
+                                     17 ;--------------------------------------------------------
+                                     18 ;--------------------------------------------------------
+                                     19 ; ram data
+                                     20 ;--------------------------------------------------------
+                                     21 	.area _DATA
+      000000                         22 _Smiler::
+      000000                         23 	.ds 32
+                                     24 ;--------------------------------------------------------
+                                     25 ; absolute external ram data
+                                     26 ;--------------------------------------------------------
+                                     27 	.area _DABS (ABS)
+                                     28 ;--------------------------------------------------------
+                                     29 ; global & static initialisations
+                                     30 ;--------------------------------------------------------
+                                     31 	.area _HOME
+                                     32 	.area _GSINIT
+                                     33 	.area _GSFINAL
+                                     34 	.area _GSINIT
+                                     35 ;SmilerSprites.c:26: unsigned char Smiler[] =
+      000000 01r00r00                36 	ld	bc, #_Smiler+0
+      000003 59                      37 	ld	e, c
+      000004 50                      38 	ld	d, b
+      000005 CDr00r00                39 	call	__initrleblock
+      000008 20                      40 	.db	#32
+      000009 7E 7E FF 81 FF A5 FF    41 	.db	#0x7E, #0x7E, #0xFF, #0x81, #0xFF, #0xA5, #0xFF, #0x81
+             81
+      000011 FF 81 FF BD FF 81 7E    42 	.db	#0xFF, #0x81, #0xFF, #0xBD, #0xFF, #0x81, #0x7E, #0x7E
+             7E
+      000019 7E 7E FF 81 FF A5 FF    43 	.db	#0x7E, #0x7E, #0xFF, #0x81, #0xFF, #0xA5, #0xFF, #0x81
+             81
+      000021 FF A5 FF 99 FF 81 7E    44 	.db	#0xFF, #0xA5, #0xFF, #0x99, #0xFF, #0x81, #0x7E, #0x7E
+             7E
+      000029 00                      45 	.db	#0
+                                     46 ;--------------------------------------------------------
+                                     47 ; Home
+                                     48 ;--------------------------------------------------------
+                                     49 	.area _HOME
+                                     50 	.area _HOME
+                                     51 ;--------------------------------------------------------
+                                     52 ; code
+                                     53 ;--------------------------------------------------------
+                                     54 	.area _CODE
+                                     55 ;main.c:5: void main(){
+                                     56 ;	---------------------------------
+                                     57 ; Function main
+                                     58 ; ---------------------------------
+      000000                         59 _main::
+                                     60 ;main.c:6: UINT8 currentspriteindex = 0;
+      000000 0E 00                   61 	ld	c, #0x00
+                                     62 ;main.c:8: set_sprite_data(0, 2, Smiler);
+      000002 21r00r00                63 	ld	hl, #_Smiler
+      000005 E5                      64 	push	hl
+      000006 3E 02                   65 	ld	a, #0x02
+      000008 F5                      66 	push	af
+      000009 33                      67 	inc	sp
+      00000A AF                      68 	xor	a, a
+      00000B F5                      69 	push	af
+      00000C 33                      70 	inc	sp
+      00000D CDr00r00                71 	call	_set_sprite_data
+      000010 E8 04                   72 	add	sp, #4
+                                     73 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:610: shadow_OAM[nb].tile=tile; 
+      000012 21r02r00                74 	ld	hl, #(_shadow_OAM + 0x0002)
+      000015 36 00                   75 	ld	(hl), #0x00
+                                     76 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:652: OAM_item_t * itm = &shadow_OAM[nb];
+      000017 21r00r00                77 	ld	hl, #_shadow_OAM
+                                     78 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:653: itm->y=y, itm->x=x; 
+      00001A 3E 4E                   79 	ld	a, #0x4e
+      00001C 22                      80 	ld	(hl+), a
+      00001D 36 58                   81 	ld	(hl), #0x58
+                                     82 ;main.c:11: SHOW_SPRITES;
+      00001F F0r00                   83 	ldh	a, (_LCDC_REG+0)
+      000021 F6 02                   84 	or	a, #0x02
+      000023 E0r00                   85 	ldh	(_LCDC_REG+0),a
+                                     86 ;main.c:13: while(1){
+      000025                         87 00105$:
+                                     88 ;main.c:14: if(currentspriteindex==0){
+      000025 79                      89 	ld	a, c
+      000026 B7                      90 	or	a, a
+                                     91 ;main.c:15: currentspriteindex = 1;
+                                     92 ;main.c:18: currentspriteindex = 0;
+      000027 0E 01                   93 	ld	c, #0x01
+      000029 28 02                   94 	jr	Z, 00103$
+      00002B 0E 00                   95 	ld	c, #0x00
+      00002D                         96 00103$:
+                                     97 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:610: shadow_OAM[nb].tile=tile; 
+      00002D 21r02r00                98 	ld	hl, #(_shadow_OAM + 0x0002)
+      000030 71                      99 	ld	(hl), c
+                                    100 ;main.c:21: delay(1000);
+      000031 C5                     101 	push	bc
+      000032 21 E8 03               102 	ld	hl, #0x03e8
+      000035 E5                     103 	push	hl
+      000036 CDr00r00               104 	call	_delay
+      000039 E8 02                  105 	add	sp, #2
+      00003B C1                     106 	pop	bc
+                                    107 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:659: OAM_item_t * itm = &shadow_OAM[nb];
+      00003C 11r00r00               108 	ld	de, #_shadow_OAM+0
+                                    109 ;/Users/max/Documents/gb_dev/gbdk/include/gb/gb.h:660: itm->y+=y, itm->x+=x; 
+      00003F 1A                     110 	ld	a, (de)
+      000040 12                     111 	ld	(de), a
+      000041 13                     112 	inc	de
+      000042 1A                     113 	ld	a, (de)
+      000043 C6 0A                  114 	add	a, #0x0a
+      000045 12                     115 	ld	(de), a
+                                    116 ;main.c:22: scroll_sprite(0,10,0);
+                                    117 ;main.c:24: }
+      000046 18 DD                  118 	jr	00105$
+                                    119 	.area _CODE
+                                    120 	.area _CABS (ABS)
