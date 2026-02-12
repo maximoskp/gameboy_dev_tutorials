@@ -4,40 +4,40 @@
 
 // optimised to skip delay and read motion based on a counter
 
-UINT8 wall_right = SCREENWIDTH;
-UINT8 wall_left = 8;
-UINT8 wall_up = 16;
-UINT8 wall_down = SCREENHEIGHT+(UINT8)8;
-UINT8 currentspriteindex = 0;
+uint8_t wall_right = SCREENWIDTH;
+uint8_t wall_left = 8;
+uint8_t wall_up = 16;
+uint8_t wall_down = SCREENHEIGHT+(uint8_t)8;
+uint8_t currentspriteindex = 0;
 // time management
-UINT16 current_frame = 0;
-// UINT16 frame_to_read_joypad = 10000;
-UINT16 frame_to_update_motion = 500;
+uint16_t current_frame = 0;
+// uint16_t frame_to_read_joypad = 10000;
+uint16_t frame_to_update_motion = 500;
 // motion management
-INT8 max_velocity = 64; // divided by divisor
+int8_t max_velocity = 64; // divided by divisor
 // velocity divisor
-INT8 position_divisor = 16;
+int8_t position_divisor = 16;
 // player data
-UINT16 pl_expanded_x_position;
-UINT16 pl_expanded_y_position;
-UINT8 pl_actual_x_position;
-UINT8 pl_actual_y_position;
-INT8 pl_x_v = 0;
-INT8 pl_y_v = 0;
-INT8 pl_x_a = 0;
-INT8 pl_y_a = 0;
+uint16_t pl_expanded_x_position;
+uint16_t pl_expanded_y_position;
+uint8_t pl_actual_x_position;
+uint8_t pl_actual_y_position;
+int8_t pl_x_v = 0;
+int8_t pl_y_v = 0;
+int8_t pl_x_a = 0;
+int8_t pl_y_a = 0;
 // enemy data
-UINT16 en_expanded_x_position;
-UINT16 en_expanded_y_position;
-UINT8 en_actual_x_position;
-UINT8 en_actual_y_position;
-INT8 en_x_v = 15;
-INT8 en_y_v = -35;
-INT8 en_x_a = 0;
-INT8 en_y_a = 0;
+uint16_t en_expanded_x_position;
+uint16_t en_expanded_y_position;
+uint8_t en_actual_x_position;
+uint8_t en_actual_y_position;
+int8_t en_x_v = 15;
+int8_t en_y_v = -35;
+int8_t en_x_a = 0;
+int8_t en_y_a = 0;
 
 void move_player(){
-    UINT8 joypad_value = joypad();
+    uint8_t joypad_value = joypad();
     pl_x_a = -1*( (J_LEFT & joypad_value)>>1 ) + (J_RIGHT & joypad_value);
     pl_y_a = -1*( (J_UP & joypad_value)>>2 ) + ( (J_DOWN & joypad_value)>>3 );
     // printf("h: %d - v: %d\n", horizontal_motion, vertical_motion);
@@ -72,7 +72,7 @@ void move_player(){
 }
 
 void move_enemy(){
-    // UINT8 joypad_value = joypad();
+    // uint8_t joypad_value = joypad();
     // current_frame = 0;
     // pl_x_a = -1*( (J_LEFT & joypad_value)>>1 ) + (J_RIGHT & joypad_value);
     // pl_y_a = -1*( (J_UP & joypad_value)>>2 ) + ( (J_DOWN & joypad_value)>>3 );

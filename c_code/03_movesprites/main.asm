@@ -1,9 +1,8 @@
 ;--------------------------------------------------------
-; File Created by SDCC : free open source ISO C Compiler 
-; Version 4.3.2 #14228 (Mac OS X x86_64)
+; File Created by SDCC : free open source ISO C Compiler
+; Version 4.5.1 #15267 (Mac OS X x86_64)
 ;--------------------------------------------------------
 	.module main
-	.optsdcc -msm83
 	
 ;--------------------------------------------------------
 ; Public variables in this module
@@ -60,12 +59,13 @@ _main::
 	push	hl
 	call	_set_sprite_data
 	add	sp, #4
-;/Users/max/gbdk/include/gb/gb.h:1804: shadow_OAM[nb].tile=tile;
+;/Users/max/gbdk/include/gb/gb.h:1887: shadow_OAM[nb].tile=tile;
 	ld	hl, #(_shadow_OAM + 2)
-	ld	(hl), #0x00
-;/Users/max/gbdk/include/gb/gb.h:1877: OAM_item_t * itm = &shadow_OAM[nb];
-	ld	hl, #_shadow_OAM
-;/Users/max/gbdk/include/gb/gb.h:1878: itm->y=y, itm->x=x;
+;/Users/max/gbdk/include/gb/gb.h:1973: OAM_item_t * itm = &shadow_OAM[nb];
+	xor	a, a
+	ld	(hl-), a
+	dec	hl
+;/Users/max/gbdk/include/gb/gb.h:1974: itm->y=y, itm->x=x;
 	ld	a, #0x4e
 	ld	(hl+), a
 	ld	(hl), #0x58
@@ -140,8 +140,6 @@ _main::
 	add	a, a
 	sub	a, e
 	ld	l, a
-;	spillPairReg hl
-;	spillPairReg hl
 	push	hl
 	ldhl	sp,	#2
 	ld	a, (hl)
@@ -158,14 +156,13 @@ _main::
 	ld	a, e
 	add	a, l
 	ld	e, a
-;/Users/max/gbdk/include/gb/gb.h:1893: OAM_item_t * itm = &shadow_OAM[nb];
+;/Users/max/gbdk/include/gb/gb.h:1989: OAM_item_t * itm = &shadow_OAM[nb];
+;/Users/max/gbdk/include/gb/gb.h:1990: itm->y+=y, itm->x+=x;
 	ld	hl, #_shadow_OAM
-;/Users/max/gbdk/include/gb/gb.h:1894: itm->y+=y, itm->x+=x;
 	ld	a, (hl)
 	add	a, e
-	ld	(hl+), a
-	ld	e, l
-	ld	d, h
+	ld	(hl), a
+	ld	de, #_shadow_OAM + 1
 	ld	a, (de)
 	ldhl	sp,	#2
 	add	a, (hl)
